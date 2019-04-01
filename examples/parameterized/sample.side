@@ -1,0 +1,139 @@
+{
+  "id": "42b480b9-34b3-421c-86f6-f79402f4cc00",
+  "version": "2.0",
+  "name": "Parameterized testing",
+  "url": "https://www.seleniumeasy.com",
+  "tests": [{
+    "id": "b005f4bb-22b0-4044-9024-a8252210a4b9",
+    "name": "Input form",
+    "commands": [{
+      "id": "d91430c4-7d03-4a10-833d-40491a8c9375",
+      "comment": "",
+      "command": "open",
+      "target": "/test/basic-first-form-demo.html",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "1a293969-5905-44ac-aff6-c6036187d1bc",
+      "comment": "",
+      "command": "type",
+      "target": "id=user-message",
+      "targets": [
+        ["id=user-message", "id"],
+        ["css=.form-group > #user-message", "css:finder"],
+        ["xpath=//input[@id='user-message']", "xpath:attributes"],
+        ["xpath=//form[@id='get-input']/div/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": "{$ message $}"
+    }, {
+      "id": "53b613b2-0a1b-45d9-b9d1-ef1e65db1a46",
+      "comment": "",
+      "command": "click",
+      "target": "css=.btn:nth-child(2)",
+      "targets": [
+        ["css=.btn:nth-child(2)", "css:finder"],
+        ["xpath=(//button[@type='button'])[2]", "xpath:attributes"],
+        ["xpath=//form[@id='get-input']/button", "xpath:idRelative"],
+        ["xpath=//form/button", "xpath:position"],
+        ["xpath=//button[contains(.,'Show Message')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "4a10978a-7f1f-4b3d-89b2-92d4c7aaa8d0",
+      "comment": "",
+      "command": "verifyText",
+      "target": "id=display",
+      "targets": [
+        ["id=display", "id"],
+        ["css=#display", "css:finder"],
+        ["xpath=//span[@id='display']", "xpath:attributes"],
+        ["xpath=//div[@id='user-message']/span", "xpath:idRelative"],
+        ["xpath=//div/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Message')]", "xpath:innerText"]
+      ],
+      "value": "{$ message $}"
+    }]
+  }, {
+    "id": "ade71960-f8d7-4bcf-b3ae-e67fbedcca33",
+    "name": "Input matrix",
+    "commands": [{
+      "id": "77ccdef7-4535-4bbc-a6ec-41789e955882",
+      "comment": "",
+      "command": "open",
+      "target": "/test/basic-first-form-demo.html",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b77c4f38-22cb-4e42-bb0a-d44fa97a97fc",
+      "comment": "",
+      "command": "type",
+      "target": "id=sum1",
+      "targets": [
+        ["id=sum1", "id"],
+        ["css=#sum1", "css:finder"],
+        ["xpath=//input[@id='sum1']", "xpath:attributes"],
+        ["xpath=//form[@id='gettotal']/div/input", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/form/div/input", "xpath:position"]
+      ],
+      "value": "{$ input_a $}"
+    }, {
+      "id": "2f19ce33-2bf7-467c-a19d-ac59b3fd845e",
+      "comment": "",
+      "command": "type",
+      "target": "id=sum2",
+      "targets": [
+        ["id=sum2", "id"],
+        ["css=#sum2", "css:finder"],
+        ["xpath=//input[@id='sum2']", "xpath:attributes"],
+        ["xpath=//form[@id='gettotal']/div[2]/input", "xpath:idRelative"],
+        ["xpath=//div[2]/input", "xpath:position"]
+      ],
+      "value": "{$ input_b $}"
+    }, {
+      "id": "5337e3c0-55b1-43a4-bace-46d330754e6a",
+      "comment": "",
+      "command": "click",
+      "target": "css=.btn:nth-child(3)",
+      "targets": [
+        ["css=.btn:nth-child(3)", "css:finder"],
+        ["xpath=(//button[@type='button'])[3]", "xpath:attributes"],
+        ["xpath=//form[@id='gettotal']/button", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/form/button", "xpath:position"],
+        ["xpath=//button[contains(.,'Get Total')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "01b01c6d-7cc4-4d64-94c1-22966eed002e",
+      "comment": "",
+      "command": "verifyText",
+      "target": "id=displayvalue",
+      "targets": [
+        ["id=displayvalue", "id"],
+        ["css=#displayvalue", "css:finder"],
+        ["xpath=//span[@id='displayvalue']", "xpath:attributes"],
+        ["xpath=//div[@id='easycont']/div/div[2]/div[2]/div[2]/div/span", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/div/span", "xpath:position"],
+        ["xpath=//span[contains(.,'30')]", "xpath:innerText"]
+      ],
+      "value": "{$ input_a|int + input_b|int $}"
+    }]
+  }],
+  "suites": [{
+    "id": "c06ba8f6-58eb-44e0-a821-b20d5957a2b8",
+    "name": "Input message",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["b005f4bb-22b0-4044-9024-a8252210a4b9"]
+  }, {
+    "id": "dd8bb8ef-ceb3-4b3e-b3b9-312e19794148",
+    "name": "Input sum",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["ade71960-f8d7-4bcf-b3ae-e67fbedcca33"]
+  }],
+  "urls": ["https://www.seleniumeasy.com/"],
+  "plugins": []
+}

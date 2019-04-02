@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/side-runner-py/side-runner-py.svg?branch=master)](https://travis-ci.org/side-runner-py/side-runner-py)
+
 ## Getting started
 
 ```

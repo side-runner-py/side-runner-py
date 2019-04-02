@@ -1,0 +1,16 @@
+version: '3'
+services:
+  runner:
+    build: .
+    command: |
+      side-runner-py
+        --side-file /src/examples/parameterized/sample.side
+        --param-file /src/examples/parameterized/params.json
+        --output-dir /out
+        --hook-scripts-dir /src/hooks
+    volumes:
+      - "~/out:/out"
+  webdriver:
+    image: selenium/standalone-chrome-debug
+    ports:
+    - '5900:5900'

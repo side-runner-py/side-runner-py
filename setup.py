@@ -24,6 +24,13 @@ setup(
         'selenium',
         'jinja2',
     ],
+    setup_requires=[
+        'pytest-runner'
+    ],
+    tests_require=[
+        'pytest',
+        'pytest-mock',
+    ],
     classifiers=[
         'Programming Language :: Python :: 3.5',
         'Operating System :: OS Independent',

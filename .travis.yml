@@ -5,4 +5,5 @@ python:
 service:
   - docker
 script:
+  - python setup.py test
   - tests/e2e/run.sh

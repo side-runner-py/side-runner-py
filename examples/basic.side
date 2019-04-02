@@ -1,0 +1,103 @@
+{
+  "id": "ee9efef2-4cf0-4608-b296-7100887852b6",
+  "version": "2.0",
+  "name": "Basic",
+  "url": "https://www.seleniumeasy.com",
+  "tests": [{
+    "id": "bcbde192-a28d-4c2b-996e-36fb1358a9f9",
+    "name": "Radio button",
+    "commands": [{
+      "id": "9a5f25a5-a5bf-49e8-8d44-68de1d325b41",
+      "comment": "",
+      "command": "open",
+      "target": "/test/basic-radiobutton-demo.html",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b75ea2e9-e46b-4387-97ec-85c1915a36fa",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//input[@name='optradio']",
+      "targets": [
+        ["name=optradio", "name"],
+        ["css=.panel-body > .radio-inline:nth-child(2) > input", "css:finder"],
+        ["xpath=//input[@name='optradio']", "xpath:attributes"],
+        ["xpath=//div[@id='easycont']/div/div[2]/div/div[2]/label/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "4bb1c5c4-2141-4520-aa69-d42aa903b671",
+      "comment": "",
+      "command": "click",
+      "target": "id=buttoncheck",
+      "targets": [
+        ["id=buttoncheck", "id"],
+        ["css=#buttoncheck", "css:finder"],
+        ["xpath=//button[@id='buttoncheck']", "xpath:attributes"],
+        ["xpath=//div[@id='easycont']/div/div[2]/div/div[2]/p[2]/button", "xpath:idRelative"],
+        ["xpath=//p[2]/button", "xpath:position"],
+        ["xpath=//button[contains(.,'Get Checked value')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "a6be30be-1c3c-4d9f-a78e-c9d41674e387",
+      "comment": "",
+      "command": "verifyText",
+      "target": "css=.radiobutton",
+      "targets": [
+        ["css=.radiobutton", "css:finder"],
+        ["xpath=//div[@id='easycont']/div/div[2]/div/div[2]/p[3]", "xpath:idRelative"],
+        ["xpath=//p[3]", "xpath:position"]
+      ],
+      "value": "Radio button 'Male' is checked"
+    }, {
+      "id": "e870d40a-78d7-44ae-93cd-0d5545914a79",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=(//input[@name='optradio'])[2]",
+      "targets": [
+        ["css=.panel-body > .radio-inline:nth-child(3) > input", "css:finder"],
+        ["xpath=(//input[@name='optradio'])[2]", "xpath:attributes"],
+        ["xpath=//div[@id='easycont']/div/div[2]/div/div[2]/label[2]/input", "xpath:idRelative"],
+        ["xpath=//label[2]/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "67730627-dc74-4cdd-bc0e-18e63c4db582",
+      "comment": "",
+      "command": "click",
+      "target": "id=buttoncheck",
+      "targets": [
+        ["id=buttoncheck", "id"],
+        ["css=#buttoncheck", "css:finder"],
+        ["xpath=//button[@id='buttoncheck']", "xpath:attributes"],
+        ["xpath=//div[@id='easycont']/div/div[2]/div/div[2]/p[2]/button", "xpath:idRelative"],
+        ["xpath=//p[2]/button", "xpath:position"],
+        ["xpath=//button[contains(.,'Get Checked value')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "a92c0183-0bd9-43fe-b38a-4cd4c7bef813",
+      "comment": "",
+      "command": "verifyText",
+      "target": "css=.radiobutton",
+      "targets": [
+        ["css=.radiobutton", "css:finder"],
+        ["xpath=//div[@id='easycont']/div/div[2]/div/div[2]/p[3]", "xpath:idRelative"],
+        ["xpath=//p[3]", "xpath:position"]
+      ],
+      "value": "Radio button 'Female' is checked"
+    }]
+  }],
+  "suites": [{
+    "id": "8ad9ceea-938f-46d5-b7d9-af0b2832d7ad",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["bcbde192-a28d-4c2b-996e-36fb1358a9f9"]
+  }],
+  "urls": ["https://www.seleniumeasy.com/"],
+  "plugins": []
+}

@@ -7,7 +7,7 @@ from .commands import TEST_HANDLER_MAP
 from .utils import with_retry
 from .init import initialize
 from .config import Config
-from .side import parse_side, attach_params, expand_test_with_params
+from .side import SIDEProjectManager
 
 from logging import basicConfig, INFO, getLogger
 logger = getLogger(__name__)
@@ -35,13 +35,6 @@ def execute_test(driver, test_project, test_suite, test_dict):
         logger.warning(traceback_msg)
         return True, traceback_msg
     return False, ""
-
-
-def _gen_tests(test_suites, tests):
-    for test_suite in test_suites:
-        for test_id in test_suite['tests']:
-            for idx, test in enumerate(tests[test_id]['commands']):
-                yield test_suite, tests[test_id], idx, test
 
 
 def _ensure_test_suite_output(output, test_suite_id, create):
@@ -72,25 +65,17 @@ def _call_hook_script(pattern):
                 exec(f.read())
 
 
-def _execute_side_file(side_filename, param_filename):
+def _execute_side_file(driver, side_manager, project_id):
     execute_datetime = datetime.datetime.now().replace(microsecond=0).isoformat().replace(':', '-').replace('T', '.')
-
-    # load .side file
-    test_project, test_suites, tests = parse_side(side_filename)
-    attach_params(param_filename, tests)
-    test_suites, tests = expand_test_with_params(test_suites, tests)
 
     # prepare output directory
     outdir = pathlib.Path(Config.OUTPUT_DIR) / execute_datetime
     outdir.mkdir(parents=True, exist_ok=True)
 
-    # prepare webdriver
-    driver = with_retry(Config.DRIVER_RETRY_COUNT, Config.DRIVER_RETRY_WAIT, initialize, Config.WEBDRIVER_URL)
-
     # start test
     output = []
     _call_hook_script('pre*.py')
-    for test_suite, tests, idx, test in _gen_tests(test_suites, tests):
+    for test_project, test_suite, tests, idx, test in side_manager.get_tests_iter(project_id):
         logger.info('TEST: {}.{}.{}.{} to {} with {}'.format(
             test_suite['name'], tests['name'], idx, test['command'], test['target'], test['value']))
         get_screenshot(driver, test_suite['name'], tests['name'], idx, test, outdir)
@@ -125,9 +110,14 @@ def main():
     # load and evaluate config, env, defaults
     Config.init()
 
+    # prepare webdriver
+    driver = with_retry(Config.DRIVER_RETRY_COUNT, Config.DRIVER_RETRY_WAIT, initialize, Config.WEBDRIVER_URL)
+
+    side_manager = SIDEProjectManager()
     for side_filename in pathlib.Path(Config.SIDE_FILE).parent.glob(Config.SIDE_FILE):
         param_filename = side_filename.stem
-        _execute_side_file(str(side_filename), str(param_filename))
+        project_id = side_manager.add_project(str(side_filename), str(param_filename))
+        _execute_side_file(driver, side_manager, project_id)
 
 
 if __name__ == '__main__':

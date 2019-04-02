@@ -72,15 +72,12 @@ def _call_hook_script(pattern):
                 exec(f.read())
 
 
-def main():
+def _execute_side_file(side_filename, param_filename):
     execute_datetime = datetime.datetime.now().replace(microsecond=0).isoformat().replace(':', '-').replace('T', '.')
 
-    # load and evaluate config, env, defaults
-    Config.init()
-
     # load .side file
-    test_project, test_suites, tests = parse_side(Config.SIDE_FILE)
-    attach_params(Config.PARAM_FILE, tests)
+    test_project, test_suites, tests = parse_side(side_filename)
+    attach_params(param_filename, tests)
     test_suites, tests = expand_test_with_params(test_suites, tests)
 
     # prepare output directory
@@ -122,6 +119,13 @@ def main():
     # output test result
     with open(outdir / 'result.json', 'w') as f:
         json.dump(output, f, indent=4)
+
+
+def main():
+    # load and evaluate config, env, defaults
+    Config.init()
+
+    _execute_side_file(Config.SIDE_FILE, Config.PARAM_FILE)
 
 
 if __name__ == '__main__':

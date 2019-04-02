@@ -125,7 +125,9 @@ def main():
     # load and evaluate config, env, defaults
     Config.init()
 
-    _execute_side_file(Config.SIDE_FILE, Config.PARAM_FILE)
+    for side_filename in pathlib.Path(Config.SIDE_FILE).parent.glob(Config.SIDE_FILE):
+        param_filename = side_filename.stem
+        _execute_side_file(str(side_filename), str(param_filename))
 
 
 if __name__ == '__main__':

@@ -6,3 +6,4 @@ service:
   - docker
 script:
   - tests/e2e/run.sh
+  - pytest tests/unit

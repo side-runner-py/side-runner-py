@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/side-runner-py/side-runner-py.svg?branch=master)](https://travis-ci.org/side-runner-py/side-runner-py)
+[![codecov](https://codecov.io/gh/side-runner-py/side-runner-py/branch/master/graph/badge.svg)](https://codecov.io/gh/side-runner-py/side-runner-py)
 
 ## Getting started
 

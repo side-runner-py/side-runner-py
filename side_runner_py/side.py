@@ -67,7 +67,7 @@ class SIDEProjectManager:
 
         return test_project, test_suites, tests
 
-    def _attach_params(params_filename, tests):
+    def _attach_params(self, params_filename, tests):
         # parse json
         with open(params_filename, 'r') as f:
             test_params = json.load(f)
@@ -85,7 +85,7 @@ class SIDEProjectManager:
         for test_param in test_params:
             tests[test_param['test_id']]['params'] = test_param['params']
 
-    def _expand_test_with_params(test_suites, tests):
+    def _expand_test_with_params(self, test_suites, tests):
         # expand test
         new_tests = {}
         expanded_tests = []

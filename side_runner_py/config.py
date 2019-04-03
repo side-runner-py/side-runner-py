@@ -23,7 +23,6 @@ def _update_or_skip(target, key, data=None):
 CONFIG_MAP = {
     'webdriver-url': {'value': 'http://webdriver:4444/wd/hub'},
     'side-file': {'value': 'default.side'},
-    'param-file': {'value': 'param.json'},
     'http-proxy': {'value': ''},
     'https-proxy': {'value': ''},
     'no-proxy': {'value': ''},

@@ -34,9 +34,10 @@ class SIDEProjectManager:
         tests = deepcopy(test_project['tests'])
         test_suites = deepcopy(test_project['test_suites'])
 
-        # expand parameters
-        self._attach_params(test_project['param_filename'], tests)
-        test_suites, tests = self._expand_test_with_params(test_suites, tests)
+        # expand parameters if param file exists
+        if test_project['param_filename']:
+            self._attach_params(test_project['param_filename'], tests)
+            test_suites, tests = self._expand_test_project_with_params(test_suites, tests)
 
         # extend manager's tests and parameter expanded tests
         all_tests = deepcopy(self.tests)

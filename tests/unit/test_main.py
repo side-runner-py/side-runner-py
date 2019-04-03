@@ -1,5 +1,15 @@
+import pytest
 import os
 from side_runner_py import main
+
+
+def test_get_side_file_list_by_glob():
+    with pytest.raises(ValueError):
+        assert list(main._get_side_file_list_by_glob('')) == []
+
+
+def test_get_side_fixed_file_list_by_glob():
+    assert list(main._get_side_file_list_by_glob('/tmp/a.json')) == ['/tmp/a.json']
 
 
 def test_main_with_glob_no_match(mocker):

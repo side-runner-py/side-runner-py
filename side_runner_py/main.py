@@ -106,6 +106,18 @@ def _execute_side_file(driver, side_manager, project_id):
         json.dump(output, f, indent=4)
 
 
+def _get_side_file_list_by_glob(pattern):
+    # get SIDE file and param file absolute path pair
+    base_dir = pathlib.Path(pattern).parent
+    for side_filename in base_dir.glob(pathlib.Path(pattern).name):
+        param_file_fullpath = base_dir / '{}_params.json'.format(side_filename.stem)
+        side_file_fullpath = base_dir / side_filename
+        if not param_file_fullpath.exists():
+            yield (side_file_fullpath, None)
+        else:
+            yield (side_file_fullpath, param_file_fullpath)
+
+
 def main():
     # load and evaluate config, env, defaults
     Config.init()
@@ -114,9 +126,8 @@ def main():
     driver = with_retry(Config.DRIVER_RETRY_COUNT, Config.DRIVER_RETRY_WAIT, initialize, Config.WEBDRIVER_URL)
 
     side_manager = SIDEProjectManager()
-    for side_filename in pathlib.Path(Config.SIDE_FILE).parent.glob(pathlib.Path(Config.SIDE_FILE).name):
-        param_filename = side_filename.stem
-        project_id = side_manager.add_project(str(side_filename), str(param_filename))
+    for side_filename, param_filename in _get_side_file_list_by_glob(Config.SIDE_FILE):
+        project_id = side_manager.add_project(side_filename, param_filename)
         _execute_side_file(driver, side_manager, project_id)
 
 

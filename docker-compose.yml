@@ -8,6 +8,7 @@ services:
         --param-file /src/examples/parameterized/parameterized_params.json
         --output-dir /out
         --hook-scripts-dir /src/hooks
+        --driver-retry-count 10
     volumes:
       - "~/out:/out"
   webdriver:

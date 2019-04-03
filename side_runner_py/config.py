@@ -26,6 +26,7 @@ CONFIG_MAP = {
     'driver-retry-count': {'value': 5, 'type': int},
     'driver-retry-wait': {'value': 5, 'type': int},
     'driver-element-wait': {'value': 10, 'type': int},
+    'driver-command-wait': {'value': 0, 'type': int},
     'hook-scripts-dir': {'value': 'hooks'},
 }
 

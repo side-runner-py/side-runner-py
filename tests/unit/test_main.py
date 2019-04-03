@@ -1,6 +1,8 @@
+import json
+from unittest import mock
 import pytest
 import os
-from side_runner_py import main
+from side_runner_py import main, config
 
 
 def test_get_side_file_list_by_glob():
@@ -20,3 +22,51 @@ def test_main_with_glob_no_match(mocker):
     execute_side_file_mock = mocker.patch('side_runner_py.main._execute_side_file')
     main.main()
     assert execute_side_file_mock.call_count == 0
+
+
+def test_main_multiple_not_shared(mocker, tmp_path):
+    mocker.patch('side_runner_py.main.with_retry')
+    mocker.patch('side_runner_py.main.get_screenshot')
+    mocker.patch('side_runner_py.main.execute_test')
+
+    # parepare mock test file
+    sidefile_a = tmp_path / "a.json"
+    orig_test_project_a = {
+        'suites': [{'tests': ['foobar_a']}],
+        'tests': [{'id': 'foobar_a', 'commands': []}], 'id': 'foobar_a'
+    }
+    sidefile_a.write_text(json.dumps(orig_test_project_a))
+    sidefile_b = tmp_path / "b.json"
+    orig_test_project_b = {
+        'suites': [{'tests': ['foobar_b']}],
+        'tests': [{'id': 'foobar_b', 'commands': []}], 'id': 'foobar_b'
+    }
+    sidefile_b.write_text(json.dumps(orig_test_project_b))
+
+    # call main with mocked driver, etc...
+    with mock.patch.object(config.sys, 'argv', ['prog_name', '--side-file={}'.format(tmp_path/"*.json")]):
+        main.main()
+
+
+def test_main_multiple_shared(mocker, tmp_path):
+    mocker.patch('side_runner_py.main.with_retry')
+    mocker.patch('side_runner_py.main.get_screenshot')
+    mocker.patch('side_runner_py.main.execute_test')
+
+    # parepare mock test file
+    sidefile_a = tmp_path / "a.json"
+    orig_test_project_a = {
+        'suites': [{'tests': ['foobar_a']}],
+        'tests': [{'id': 'foobar_a', 'commands': []}], 'id': 'foobar_a'
+    }
+    sidefile_a.write_text(json.dumps(orig_test_project_a))
+    sidefile_b = tmp_path / "b.json"
+    orig_test_project_b = {
+        'suites': [{'tests': ['foobar_a', 'foobar_b']}],
+        'tests': [{'id': 'foobar_b', 'commands': []}], 'id': 'foobar_b'
+    }
+    sidefile_b.write_text(json.dumps(orig_test_project_b))
+
+    # call main with mocked driver, etc...
+    with mock.patch.object(config.sys, 'argv', ['prog_name', '--side-file={}'.format(tmp_path/"*.json")]):
+        main.main()

@@ -85,25 +85,30 @@ class SIDEProjectManager:
         for test_param in test_params:
             tests[test_param['test_id']]['params'] = test_param['params']
 
-    def _expand_test_with_params(self, test_suites, tests):
+    def _expand_tests_with_params(self, tests):
         # expand test
         new_tests = {}
-        expanded_tests = []
-        for test in tests.values():
-            if 'params' in test:
-                expanded_tests.append(test['id'])
-                for idx, param in enumerate(test['params']):
-                    new_id = '{0}-{1}'.format(test['id'], idx)
-                    new_tests[new_id] = _render_param(test, param)
-                    new_tests[new_id]['id'] = new_id
-                    new_tests[new_id]['name'] = '{0}-{1}'.format(test['name'], idx)
+        expanded_test_ids = []
 
+        # filter tests with params attched or not
+        params_attached_tests = [test for test in tests.values() if 'params' in test]
+
+        for test in params_attached_tests:
+            expanded_test_ids.append(test['id'])
+            for idx, param in enumerate(test['params']):
+                new_id = '{0}-{1}'.format(test['id'], idx)
+                new_tests[new_id] = _render_param(test, param)
+                new_tests[new_id]['id'] = new_id
+                new_tests[new_id]['name'] = '{0}-{1}'.format(test['name'], idx)
+        return new_tests, expanded_test_ids
+
+    def _expand_test_suites_with_params(self, test_suites, tests, expanded_tests):
         # expand test suite
         new_suites = []
         expanded_suites = []
         for idx, test_suite in enumerate(test_suites):
-            contains_tests = list(map(lambda test_id: tests[test_id],
-                                  filter(lambda test_id: test_id in test_suite['tests'], expanded_tests)))
+            # filter parameter expanded test-dict
+            contains_tests = [tests[test_id] for test_id in expanded_tests if test_id in test_suite['tests']]
             if len(contains_tests) == 0:
                 continue
             expanded_suites.append(idx)
@@ -121,6 +126,11 @@ class SIDEProjectManager:
                                           if oldid == test_id else oldid for oldid in new_suite['tests']]
 
                 new_suites.append(new_suite)
+        return new_suites, expanded_suites
+
+    def _expand_test_project_with_params(self, test_suites, tests):
+        new_tests, expanded_tests = self._expand_tests_with_params(tests)
+        new_suites, expanded_suites = self._expand_test_suites_with_params(test_suites, tests, expanded_tests)
 
         # update objects
         tests.update(new_tests)

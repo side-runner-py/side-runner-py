@@ -65,7 +65,7 @@ class TestSIDEProjectManager:
         side_manager = SIDEProjectManager()
         side_manager._attach_params('foobar.json', tests)
         test_suites = [{'id': 'foobar', 'tests': ['foobar'], 'name': 'foobar'}]
-        test_suites, tests = side_manager._expand_test_with_params(test_suites, tests)
+        test_suites, tests = side_manager._expand_test_project_with_params(test_suites, tests)
         assert test_suites == [
             {'id': 'foobar-0', 'name': 'foobar-0', 'tests': ['foobar-0']},
             {'id': 'foobar-1', 'name': 'foobar-1', 'tests': ['foobar-1']}]

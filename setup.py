@@ -23,6 +23,7 @@ setup(
     install_requires=[
         'selenium',
         'jinja2',
+        'emoji',
     ],
     setup_requires=[
         'pytest-runner'

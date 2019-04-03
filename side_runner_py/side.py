@@ -88,19 +88,19 @@ class SIDEProjectManager:
     def _expand_tests_with_params(self, tests):
         # expand test
         new_tests = {}
-        expanded_test_ids = []
+        expanded_test_original_ids = []
 
         # filter tests with params attched or not
         params_attached_tests = [test for test in tests.values() if 'params' in test]
 
         for test in params_attached_tests:
-            expanded_test_ids.append(test['id'])
+            expanded_test_original_ids.append(test['id'])
             for idx, param in enumerate(test['params']):
                 new_id = '{0}-{1}'.format(test['id'], idx)
                 new_tests[new_id] = _render_param(test, param)
                 new_tests[new_id]['id'] = new_id
                 new_tests[new_id]['name'] = '{0}-{1}'.format(test['name'], idx)
-        return new_tests, expanded_test_ids
+        return new_tests, expanded_test_original_ids
 
     def _expand_test_suites_with_params(self, test_suites, tests, expanded_tests):
         # expand test suite

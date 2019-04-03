@@ -1,5 +1,6 @@
 import os.path
 import json
+import time
 import pathlib
 import traceback
 import datetime
@@ -80,6 +81,7 @@ def _execute_side_file(driver, side_manager, project_id):
             test_suite['name'], tests['name'], idx, test['command'], test['target'], test['value']))
         get_screenshot(driver, test_suite['name'], tests['name'], idx, test, outdir)
         is_failed, failed_msg = execute_test(driver, test_project, test_suite, test)
+        time.sleep(Config.DRIVER_COMMAND_WAIT / 1000)
 
         # generate test result
         test_command_output = {

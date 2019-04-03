@@ -10,3 +10,5 @@ install:
 script:
   - coverage run setup.py test
   - tests/e2e/run.sh
+after_success:
+  - codecov

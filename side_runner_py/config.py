@@ -48,7 +48,7 @@ class Config:
         # set each config value from default, env, cmd
         for key, default in CONFIG_MAP.items():
             env_key = key.replace('-', '_').upper()
-            type_class = opt.get('type', str)
+            type_class = default.get('type', str)
             setattr(Config, env_key, default['value'])
             _update_or_skip(Config, env_key, _cast_or_raw(os.environ.get(env_key), type_class))
             _update_or_skip(Config, env_key, _cast_or_raw(getattr(args, env_key), type_class))

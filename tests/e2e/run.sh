@@ -1,4 +1,5 @@
 #!/bin/sh
+rm -rf ~/out
 mkdir -p ~/out
 docker-compose up -d
 while docker-compose ps | grep _runner_ | grep Up; do
@@ -6,5 +7,10 @@ while docker-compose ps | grep _runner_ | grep Up; do
 done
 docker-compose logs
 docker-compose down
-outdir=$(ls ~/out/* -td | head -n 1)
-python tests/e2e/checkresult.py ${outdir}/result.json
+
+failed=0
+for dir in $(ls ~/out/* -td | tac); do
+  python tests/e2e/checkresult.py ${dir}/result.json
+  [ $? -ne 0 ] && failed=1
+done
+exit $failed

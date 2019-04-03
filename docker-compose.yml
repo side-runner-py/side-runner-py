@@ -4,8 +4,7 @@ services:
     build: .
     command: |
       side-runner-py
-        --side-file /src/examples/parameterized.side
-        --param-file /src/examples/parameterized_params.json
+        --side-file /src/examples/*.side
         --output-dir /out
         --hook-scripts-dir /src/hooks
         --driver-retry-count 10

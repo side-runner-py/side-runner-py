@@ -114,7 +114,7 @@ def main():
     driver = with_retry(Config.DRIVER_RETRY_COUNT, Config.DRIVER_RETRY_WAIT, initialize, Config.WEBDRIVER_URL)
 
     side_manager = SIDEProjectManager()
-    for side_filename in pathlib.Path(Config.SIDE_FILE).parent.glob(Config.SIDE_FILE):
+    for side_filename in pathlib.Path(Config.SIDE_FILE).parent.glob(pathlib.Path(Config.SIDE_FILE).name):
         param_filename = side_filename.stem
         project_id = side_manager.add_project(str(side_filename), str(param_filename))
         _execute_side_file(driver, side_manager, project_id)

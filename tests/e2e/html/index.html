@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>side-runner-py test page</title>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <style>
+    svg { border: solid; border-width: 1px; }
+  </style>
+  <div id="app">
+    <div><svg id="clickable-svg" width="80px" height="60px" @click="click($event)"/></div>
+    <div><span id="clicked-x">x:{{ clicked.x }}</span></div>
+    <div><span id="clicked-y">y:{{ clicked.y }}</span></div>
+  </div>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        message: 'Hello Vue!!!',
+        clicked: {x: -1, y : -1},
+      },
+      methods: {
+        click(event) {
+          var svg = document.getElementById('clickable-svg').getBoundingClientRect();
+          var [svgx, svgy] = [Math.round(svg.left), Math.round(svg.top)];
+          this.clicked.x = event.clientX - svgx;
+          this.clicked.y = event.clientY - svgy;
+        },
+      },
+    });
+  </script>
+</body>
+</html>

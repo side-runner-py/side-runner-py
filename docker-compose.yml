@@ -14,3 +14,7 @@ services:
     image: selenium/standalone-chrome-debug
     ports:
     - '5900:5900'
+  webpage:
+    image: nginx:alpine
+    volumes:
+    - "$PWD/tests/e2e/html:/usr/share/nginx/html"

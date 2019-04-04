@@ -104,71 +104,79 @@ def _prepare_test_project_execution():
             json.dump(output, f, indent=4)
 
 
-def _generate_test_session(side_manager, project_id):
-    test_project, test_suites, tests = side_manager.get_project(project_id)
+def _close_driver_or_skip(driver):
+    logger.info('Close session {}'.format(driver))
+    if driver:
+        driver.close()
+        driver = None
 
-    @contextlib.contextmanager
-    def _test_suite_session(driver, test_suite):
-        def _():
-            for test_id in test_suite['tests']:
-                yield test_id
 
-        yield driver, _
+@contextlib.contextmanager
+def _test_suite_session(driver, test_suite):
+    def _():
+        for test_id in test_suite['tests']:
+            yield test_id
 
-        # close driver on test_suite execution finished
-        if driver:
-            driver.close()
-            driver = None
+    logger.debug('Enter test-suite {}'.format(test_suite['id']))
+    yield driver, _
+    logger.debug('Leave test-suite {}'.format(test_suite['id']))
 
-    @contextlib.contextmanager
-    def _tests_session(driver, test_suite, test_id):
-        def _():
-            for idx, test in enumerate(tests[test_id]['commands']):
-                yield idx, test
+    # close driver on test_suite execution finished
+    _close_driver_or_skip(driver)
 
-        # prepare webdriver
+
+@contextlib.contextmanager
+def _tests_session(driver, test_suite, tests, test_id):
+    def _():
+        for idx, test in enumerate(tests[test_id]['commands']):
+            yield idx, test
+
+    # prepare webdriver
+    if not driver:
+        logger.info('Create session {}'.format(test_id))
         driver = with_retry(Config.DRIVER_RETRY_COUNT, Config.DRIVER_RETRY_WAIT, initialize, Config.WEBDRIVER_URL)
 
-        try:
-            yield driver, _
-        except Exception:
-            # close driver if exception or test-failure occur in tests session
-            if driver:
-                driver.close()
-                driver = None
+    try:
+        logger.debug('Enter tests {}'.format(test_id))
+        yield driver, _
+        logger.debug('Leave tests {}'.format(test_id))
+    except Exception:
+        # close driver if exception or test-failure occur in tests session
+        _close_driver_or_skip(driver)
 
-        # close driver if test_suite require session close
-        if not test_suite.get('persistSessiona', False):
-            if driver:
-                driver.close()
-                driver = None
+    # close driver if test_suite require session close
+    if not test_suite.get('persistSessiona', False):
+        _close_driver_or_skip(driver)
 
-    driver = None
-    for test_suite in test_suites:
-        with _test_suite_session(driver, test_suite) as (driver, gen_tests):
-            for test_id in gen_tests():
-                with _tests_session(driver, test_suite, test_id) as (driver, gen_test_command):
-                    for idx, test in gen_test_command():
-                        yield driver, test_project, test_suite, tests[test_id], idx, test
+
+def _execute_test_command(driver, test_project, test_suite, tests, idx, test, output, outdir):
+    # log test-command
+    test_path_str = '{}.{}.{}.{}'.format(test_suite['name'], tests['name'], idx, test['command'])
+    logger.info('TEST: {} to {} with {}'.format(test_path_str, test['target'], test['value']))
+
+    get_screenshot(driver, test_suite['name'], tests['name'], idx, test, outdir)
+
+    # execute test command
+    test_command_output = execute_test_command(driver, test_project, test_suite, test)
+    _store_test_command_output(output, test_suite, tests, test_command_output)
+    time.sleep(float(Config.DRIVER_COMMAND_WAIT) / 1000)
+
+    if test_command_output['is_failed']:
+        get_screenshot(driver, test_suite['name'], tests['name'], idx, test, outdir)
+        raise Exception(test_command_output)
 
 
 def _execute_side_file(side_manager, project_id):
+    test_project, test_suites, tests = side_manager.get_project(project_id)
+
     with _prepare_test_project_execution() as (output, outdir):
-        for driver, test_project, test_suite, tests, idx, test in _generate_test_session(side_manager, project_id):
-            # log test-command
-            test_path_str = '{}.{}.{}.{}'.format(test_suite['name'], tests['name'], idx, test['command'])
-            logger.info('TEST: {} to {} with {}'.format(test_path_str, test['target'], test['value']))
-
-            get_screenshot(driver, test_suite['name'], tests['name'], idx, test, outdir)
-
-            # execute test command
-            test_command_output = execute_test_command(driver, test_project, test_suite, test)
-            _store_test_command_output(output, test_suite, tests, test_command_output)
-            time.sleep(float(Config.DRIVER_COMMAND_WAIT) / 1000)
-
-            if test_command_output['is_failed']:
-                get_screenshot(driver, test_suite['name'], tests['name'], idx, test, outdir)
-                raise Exception(test_command_output)
+        driver = None
+        for test_suite in test_suites:
+            with _test_suite_session(driver, test_suite) as (driver, gen_tests):
+                for test_id in gen_tests():
+                    with _tests_session(driver, test_suite, tests, test_id) as (driver, gen_test_command):
+                        for idx, test in gen_test_command():
+                            _execute_test_command(driver, test_project, test_suite, tests[test_id], idx, test)
 
 
 def _get_side_file_list_by_glob(pattern):

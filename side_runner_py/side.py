@@ -45,13 +45,6 @@ class SIDEProjectManager:
 
         return test_project['project'], test_suites, all_tests
 
-    def get_tests_iter(self, project_id):
-        test_project, test_suites, tests = self.get_project(project_id)
-        for test_suite in test_suites:
-            for test_id in test_suite['tests']:
-                for idx, test in enumerate(tests[test_id]['commands']):
-                    yield test_project, test_suite, tests[test_id], idx, test
-
     def _parse_side(self, filename):
         # parse json
         test_project = {}

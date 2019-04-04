@@ -32,13 +32,13 @@ def test_main_multiple_not_shared(mocker, tmp_path):
     # parepare mock test file
     sidefile_a = tmp_path / "a.json"
     orig_test_project_a = {
-        'suites': [{'tests': ['foobar_a']}],
+        'suites': [{'id': 'foobar_a', 'tests': ['foobar_a']}],
         'tests': [{'id': 'foobar_a', 'commands': []}], 'id': 'foobar_a'
     }
     sidefile_a.write_text(json.dumps(orig_test_project_a))
     sidefile_b = tmp_path / "b.json"
     orig_test_project_b = {
-        'suites': [{'tests': ['foobar_b']}],
+        'suites': [{'id': 'foobar_b', 'tests': ['foobar_b']}],
         'tests': [{'id': 'foobar_b', 'commands': []}], 'id': 'foobar_b'
     }
     sidefile_b.write_text(json.dumps(orig_test_project_b))
@@ -56,13 +56,13 @@ def test_main_multiple_shared(mocker, tmp_path):
     # parepare mock test file
     sidefile_a = tmp_path / "a.json"
     orig_test_project_a = {
-        'suites': [{'tests': ['foobar_a']}],
+        'suites': [{'id': 'foobar_a', 'tests': ['foobar_a']}],
         'tests': [{'id': 'foobar_a', 'commands': []}], 'id': 'foobar_a'
     }
     sidefile_a.write_text(json.dumps(orig_test_project_a))
     sidefile_b = tmp_path / "b.json"
     orig_test_project_b = {
-        'suites': [{'tests': ['foobar_a', 'foobar_b']}],
+        'suites': [{'id': 'foobar_b', 'tests': ['foobar_a', 'foobar_b']}],
         'tests': [{'id': 'foobar_b', 'commands': []}], 'id': 'foobar_b'
     }
     sidefile_b.write_text(json.dumps(orig_test_project_b))

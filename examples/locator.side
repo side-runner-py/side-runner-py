@@ -1,0 +1,149 @@
+{
+  "id": "9255dcf4-4e5d-459a-a399-1ffea0581069",
+  "version": "2.0",
+  "name": "Locator",
+  "url": "http://webpage",
+  "tests": [{
+    "id": "d90d84da-7e2f-443b-bfad-fe23b11be8dc",
+    "name": "Click At",
+    "commands": [{
+      "id": "0af70842-eacf-402b-b79c-58e3f801bd0a",
+      "comment": "",
+      "command": "open",
+      "target": "/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "6680cd45-9ece-4519-a0a6-b05e75ddf7f2",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "960x720",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "59981c62-2900-4c08-a33f-9032bb036630",
+      "comment": "",
+      "command": "clickAt",
+      "target": "id=clickable-svg",
+      "targets": [
+        ["id=clickable-svg", "id"],
+        ["css=#clickable-svg", "css:finder"]
+      ],
+      "value": "20, 35"
+    }, {
+      "id": "1b76b895-4f82-4d92-9d5d-2c9c9abe99b1",
+      "comment": "",
+      "command": "verifyText",
+      "target": "id=clicked-x",
+      "targets": [
+        ["id=clicked-x", "id"],
+        ["css=#clicked-x", "css:finder"],
+        ["xpath=//span[@id='clicked-x']", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div[2]/span", "xpath:idRelative"],
+        ["xpath=//span", "xpath:position"],
+        ["xpath=//span[contains(.,'x:20')]", "xpath:innerText"]
+      ],
+      "value": "x:20"
+    }, {
+      "id": "bb42b0ff-e175-4656-96c3-336b407eb113",
+      "comment": "",
+      "command": "verifyText",
+      "target": "id=clicked-y",
+      "targets": [
+        ["id=clicked-y", "id"],
+        ["css=#clicked-y", "css:finder"],
+        ["xpath=//span[@id='clicked-y']", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div[3]/span", "xpath:idRelative"],
+        ["xpath=//div[3]/span", "xpath:position"],
+        ["xpath=//span[contains(.,'y:35')]", "xpath:innerText"]
+      ],
+      "value": "y:35"
+    }, {
+      "id": "77d31ac6-dd04-4d25-956a-4412d7170775",
+      "comment": "",
+      "command": "clickAt",
+      "target": "id=clickable-svg",
+      "targets": [
+        ["id=clickable-svg", "id"],
+        ["css=#clickable-svg", "css:finder"]
+      ],
+      "value": "0, 0"
+    }, {
+      "id": "5c4ed5d2-cafd-42e6-bfef-9eadcf9cb029",
+      "comment": "",
+      "command": "verifyText",
+      "target": "id=clicked-x",
+      "targets": [
+        ["id=clicked-x", "id"],
+        ["css=#clicked-x", "css:finder"],
+        ["xpath=//span[@id='clicked-x']", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div[2]/span", "xpath:idRelative"],
+        ["xpath=//span", "xpath:position"],
+        ["xpath=//span[contains(.,'x:20')]", "xpath:innerText"]
+      ],
+      "value": "x:0"
+    }, {
+      "id": "bb26f846-9fa8-4fba-ae59-621ede4ca227",
+      "comment": "",
+      "command": "verifyText",
+      "target": "id=clicked-y",
+      "targets": [
+        ["id=clicked-y", "id"],
+        ["css=#clicked-y", "css:finder"],
+        ["xpath=//span[@id='clicked-y']", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div[3]/span", "xpath:idRelative"],
+        ["xpath=//div[3]/span", "xpath:position"],
+        ["xpath=//span[contains(.,'y:35')]", "xpath:innerText"]
+      ],
+      "value": "y:0"
+    }, {
+      "id": "94d97588-eb71-4eac-ba79-c2e129ef0398",
+      "comment": "",
+      "command": "clickAt",
+      "target": "id=clickable-svg",
+      "targets": [
+        ["id=clickable-svg", "id"],
+        ["css=#clickable-svg", "css:finder"]
+      ],
+      "value": "80, 60"
+    }, {
+      "id": "9d49d5b3-fa4d-467b-83c3-ec8aeec619dd",
+      "comment": "",
+      "command": "verifyText",
+      "target": "id=clicked-x",
+      "targets": [
+        ["id=clicked-x", "id"],
+        ["css=#clicked-x", "css:finder"],
+        ["xpath=//span[@id='clicked-x']", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div[2]/span", "xpath:idRelative"],
+        ["xpath=//span", "xpath:position"],
+        ["xpath=//span[contains(.,'x:20')]", "xpath:innerText"]
+      ],
+      "value": "x:80"
+    }, {
+      "id": "ce29b593-01c2-4ce4-b37b-18739495f815",
+      "comment": "",
+      "command": "verifyText",
+      "target": "id=clicked-y",
+      "targets": [
+        ["id=clicked-y", "id"],
+        ["css=#clicked-y", "css:finder"],
+        ["xpath=//span[@id='clicked-y']", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div[3]/span", "xpath:idRelative"],
+        ["xpath=//div[3]/span", "xpath:position"],
+        ["xpath=//span[contains(.,'y:35')]", "xpath:innerText"]
+      ],
+      "value": "y:60"
+    }]
+  }],
+  "suites": [{
+    "id": "74662b8b-0fa4-4cd5-a5d2-a86a2c64f485",
+    "name": "Locators",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["d90d84da-7e2f-443b-bfad-fe23b11be8dc"]
+  }],
+  "urls": ["http://webpage/"],
+  "plugins": []
+}

@@ -127,9 +127,15 @@ def main():
     # prepare webdriver
     driver = with_retry(Config.DRIVER_RETRY_COUNT, Config.DRIVER_RETRY_WAIT, initialize, Config.WEBDRIVER_URL)
 
+    # pre-load all tests
     side_manager = SIDEProjectManager()
-    for side_filename, param_filename in _get_side_file_list_by_glob(Config.SIDE_FILE):
-        project_id = side_manager.add_project(side_filename, param_filename)
+    loaded_project_ids = [
+        side_manager.add_project(side_filename, param_filename)
+        for side_filename, param_filename in _get_side_file_list_by_glob(Config.SIDE_FILE)
+    ]
+
+    # execute test projects
+    for project_id in loaded_project_ids:
         _execute_side_file(driver, side_manager, project_id)
 
 

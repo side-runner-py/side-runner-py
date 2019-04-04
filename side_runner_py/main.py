@@ -97,26 +97,59 @@ def _prepare_test_project_execution():
 
         # FIXME: call post script
         # _call_hook_script('post*.py')
+
     finally:
         # output test result
         with open(outdir / 'result.json', 'w') as f:
             json.dump(output, f, indent=4)
 
 
-def _execute_side_file(driver, side_manager, project_id):
+def _generate_test_session(side_manager, project_id):
+    test_project, test_suites, tests = side_manager.get_project(project_id)
+
+    driver = None
+    for test_suite in test_suites:
+        for test_id in test_suite['tests']:
+            for idx, test in enumerate(tests[test_id]['commands']):
+                # prepare webdriver
+                driver = with_retry(
+                        Config.DRIVER_RETRY_COUNT, Config.DRIVER_RETRY_WAIT, initialize, Config.WEBDRIVER_URL)
+
+                try:
+                    yield driver, test_project, test_suite, tests[test_id], idx, test
+                except Exception:
+                    if driver:
+                        driver.close()
+                        driver = None
+
+            if not test_suite.get('persistSessiona', False):
+                if driver:
+                    driver.close()
+                    driver = None
+
+        # close driver on test_suite execution finished
+        if driver:
+            driver.close()
+            driver = None
+
+
+def _execute_side_file(side_manager, project_id):
     with _prepare_test_project_execution() as (output, outdir):
-        for test_project, test_suite, tests, idx, test in side_manager.get_tests_iter(project_id):
+        for driver, test_project, test_suite, tests, idx, test in _generate_test_session(side_manager, project_id):
+            # log test-command
             test_path_str = '{}.{}.{}.{}'.format(test_suite['name'], tests['name'], idx, test['command'])
             logger.info('TEST: {} to {} with {}'.format(test_path_str, test['target'], test['value']))
 
             get_screenshot(driver, test_suite['name'], tests['name'], idx, test, outdir)
 
+            # execute test command
             test_command_output = execute_test_command(driver, test_project, test_suite, test)
             _store_test_command_output(output, test_suite, tests, test_command_output)
             time.sleep(float(Config.DRIVER_COMMAND_WAIT) / 1000)
 
             if test_command_output['is_failed']:
                 get_screenshot(driver, test_suite['name'], tests['name'], idx, test, outdir)
+                raise Exception(test_command_output)
 
 
 def _get_side_file_list_by_glob(pattern):
@@ -135,9 +168,6 @@ def main():
     # load and evaluate config, env, defaults
     Config.init()
 
-    # prepare webdriver
-    driver = with_retry(Config.DRIVER_RETRY_COUNT, Config.DRIVER_RETRY_WAIT, initialize, Config.WEBDRIVER_URL)
-
     # pre-load all tests
     side_manager = SIDEProjectManager()
     loaded_project_ids = [
@@ -147,7 +177,7 @@ def main():
 
     # execute test projects
     for project_id in loaded_project_ids:
-        _execute_side_file(driver, side_manager, project_id)
+        _execute_side_file(side_manager, project_id)
 
 
 if __name__ == '__main__':

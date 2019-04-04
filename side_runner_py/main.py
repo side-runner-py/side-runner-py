@@ -141,6 +141,9 @@ def _tests_session(driver, test_suite, tests, test_id):
         yield driver, _
         logger.debug('Leave tests {}'.format(test_id))
     except Exception:
+        traceback_msg = traceback.format_exc()
+        logger.warning(traceback_msg)
+
         # close driver if exception or test-failure occur in tests session
         _close_driver_or_skip(driver)
 
@@ -176,7 +179,8 @@ def _execute_side_file(side_manager, project_id):
                 for test_id in gen_tests():
                     with _tests_session(driver, test_suite, tests, test_id) as (driver, gen_test_command):
                         for idx, test in gen_test_command():
-                            _execute_test_command(driver, test_project, test_suite, tests[test_id], idx, test)
+                            _execute_test_command(driver, test_project, test_suite,
+                                                  tests[test_id], idx, test, output, outdir)
 
 
 def _get_side_file_list_by_glob(pattern):

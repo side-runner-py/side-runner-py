@@ -24,6 +24,52 @@ def test_main_with_glob_no_match(mocker):
     assert execute_side_file_mock.call_count == 0
 
 
+def test_main_failed_session_close(mocker, tmp_path):
+    mocker.patch('side_runner_py.main.with_retry')
+    mocker.patch('side_runner_py.main.get_screenshot')
+    mocker.patch('side_runner_py.main.execute_test_command', side_effect=Exception('foobar'))
+    driver_close = mocker.patch('side_runner_py.main._close_driver_or_skip')
+
+    # parepare mock test file
+    sidefile_a = tmp_path / "a.json"
+    orig_test_project_a = {
+        'suites': [{'id': 'foobar_a', 'tests': ['foobar_a']}],
+        'tests': [{'id': 'foobar_a', 'commands': [{}]}], 'id': 'foobar_a'
+    }
+    sidefile_a.write_text(json.dumps(orig_test_project_a))
+
+    # call main with mocked driver, etc...
+    with mock.patch.object(config.sys, 'argv', ['prog_name', '--side-file={}'.format(tmp_path/"*.json")]):
+        main.main()
+        # driver close called at failure-test, test-suite, tests end
+        assert driver_close.call_count == 3
+
+
+def test_main_persistent_session(mocker, tmp_path):
+    mocker.patch('side_runner_py.main.with_retry')
+    mocker.patch('side_runner_py.main.get_screenshot')
+    mocker.patch('side_runner_py.main.execute_test_command').return_value = {'is_failed': False}
+    driver_close = mocker.patch('side_runner_py.main._close_driver_or_skip')
+
+    # parepare mock test file
+    sidefile_a = tmp_path / "a.json"
+    orig_test_project_a = {
+        'id': 'foobar_a',
+        'suites': [{'name': 'foobar_a', 'id': 'foobar_a', 'tests': ['foobar_a'], 'persistSessiona': True}],
+        'tests': [
+            {'name': 'foobar_a', 'id': 'foobar_a',
+                'commands': [{'command': 'foobar', 'target': 'foobar', 'value': 'foobar'}]}
+        ],
+    }
+    sidefile_a.write_text(json.dumps(orig_test_project_a))
+
+    # call main with mocked driver, etc...
+    with mock.patch.object(config.sys, 'argv', ['prog_name', '--side-file={}'.format(tmp_path/"*.json")]):
+        main.main()
+        # driver close called at test-suite end
+        assert driver_close.call_count == 1
+
+
 def test_main_multiple_not_shared(mocker, tmp_path):
     mocker.patch('side_runner_py.main.with_retry')
     mocker.patch('side_runner_py.main.get_screenshot')

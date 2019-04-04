@@ -27,7 +27,7 @@ def test_main_with_glob_no_match(mocker):
 def test_main_multiple_not_shared(mocker, tmp_path):
     mocker.patch('side_runner_py.main.with_retry')
     mocker.patch('side_runner_py.main.get_screenshot')
-    mocker.patch('side_runner_py.main.execute_test')
+    mocker.patch('side_runner_py.main.execute_test_command')
 
     # parepare mock test file
     sidefile_a = tmp_path / "a.json"
@@ -51,7 +51,7 @@ def test_main_multiple_not_shared(mocker, tmp_path):
 def test_main_multiple_shared(mocker, tmp_path):
     mocker.patch('side_runner_py.main.with_retry')
     mocker.patch('side_runner_py.main.get_screenshot')
-    mocker.patch('side_runner_py.main.execute_test')
+    mocker.patch('side_runner_py.main.execute_test_command')
 
     # parepare mock test file
     sidefile_a = tmp_path / "a.json"

@@ -27,19 +27,31 @@ def get_screenshot(driver, test_suite_name, test_case_name, cmd_index, test_dict
         logger.warning(traceback.format_exc())
 
 
-def execute_test(driver, test_project, test_suite, test_dict):
+def _format_test_command_output(test, is_failed, failed_msg):
+    # generate test result
+    return {
+        'comment': test.get('comment'),
+        'command': test['command'],
+        'target': test['target'],
+        'value': test['value'],
+        'is_failed': is_failed,
+        'failed_msg': failed_msg
+    }
+
+
+def execute_test_command(driver, test_project, test_suite, test_dict):
     try:
         handler_func = TEST_HANDLER_MAP[test_dict['command']]
         handler_func(driver, test_project, test_suite, test_dict)
     except Exception:
         traceback_msg = traceback.format_exc()
         logger.warning(traceback_msg)
-        return True, traceback_msg
-    return False, ""
+        return _format_test_command_output(test_dict, True, traceback_msg)
+    return _format_test_command_output(test_dict, False, "")
 
 
-def _ensure_test_suite_output(output, test_suite_id, create):
-    f = [elm for elm in output if elm['id'] == test_suite_id]
+def _ensure_test_output_by_id(output, some_id, create):
+    f = [elm for elm in output if elm['id'] == some_id]
     if f:
         return f[0]
 
@@ -48,14 +60,14 @@ def _ensure_test_suite_output(output, test_suite_id, create):
     return create
 
 
-def _ensure_tests_output(output, tests_id, create):
-    f = [elm for elm in output if elm['id'] == tests_id]
-    if f:
-        return f[0]
-
-    # create if not found tests output element
-    output.append(create)
-    return create
+def _store_test_command_output(output, test_suite, tests, test_command_output):
+    # ensure and get output dict referenct
+    test_suite_output = _ensure_test_output_by_id(
+        output, test_suite['id'], {'name': test_suite['name'], 'tests': [], 'id': test_suite['id']})
+    tests_output = _ensure_test_output_by_id(
+        test_suite_output['tests'], tests['id'], {'name': tests['name'], 'commands': [], 'id': tests['id']})
+    # store test-command output
+    tests_output['commands'].append(test_command_output)
 
 
 def _call_hook_script(pattern):
@@ -80,27 +92,11 @@ def _execute_side_file(driver, side_manager, project_id):
         logger.info('TEST: {}.{}.{}.{} to {} with {}'.format(
             test_suite['name'], tests['name'], idx, test['command'], test['target'], test['value']))
         get_screenshot(driver, test_suite['name'], tests['name'], idx, test, outdir)
-        is_failed, failed_msg = execute_test(driver, test_project, test_suite, test)
+        test_command_output = execute_test_command(driver, test_project, test_suite, test)
         time.sleep(float(Config.DRIVER_COMMAND_WAIT) / 1000)
+        _store_test_command_output(output, test_suite, tests, test_command_output)
 
-        # generate test result
-        test_command_output = {
-            'comment': test.get('comment'),
-            'command': test['command'],
-            'target': test['target'],
-            'value': test['value'],
-            'is_failed': is_failed,
-            'failed_msg': failed_msg
-        }
-        # ensure and get output dict referenct
-        test_suite_output = _ensure_test_suite_output(
-            output, test_suite['id'], {'name': test_suite['name'], 'tests': [], 'id': test_suite['id']})
-        tests_output = _ensure_tests_output(
-            test_suite_output['tests'], tests['id'], {'name': tests['name'], 'commands': [], 'id': tests['id']})
-        # store test-command output
-        tests_output['commands'].append(test_command_output)
-
-        if is_failed:
+        if test_command_output['is_failed']:
             get_screenshot(driver, test_suite['name'], tests['name'], idx, test, outdir)
 
     # output test result

@@ -60,6 +60,17 @@ def execute_click(driver, test_project, test_suite, test_dict):
     logger.debug("element:", element)
 
 
+def execute_click_at(driver, test_project, test_suite, test_dict):
+    logger.debug("CLICK AT:", test_dict)
+    try:
+        offsetx, offsety = ([int(s.strip()) for s in test_dict['value'].split(',')])
+    except Exception:
+        raise Exception('execute_click_at: illegal coord string: {}'.format(test_dict['value']))
+    element = _wait_element(driver, test_dict['target'])
+    ActionChains(driver).move_to_element_with_offset(element, offsetx, offsety).click(None).perform()
+    logger.debug("element:", element)
+
+
 def execute_double_click(driver, test_project, test_suite, test_dict):
     logger.debug("DOUBLE CLICK:", test_dict)
     element = _wait_element(driver, test_dict['target'])
@@ -141,6 +152,7 @@ TEST_HANDLER_MAP = {
     'setWindowSize': execute_set_window_size,
     'executeScript': execute_execute_script,
     'click': execute_click,
+    'clickAt': execute_click_at,
     'doubleClick': execute_double_click,
     'type': execute_type,
     'pause': execute_pause,

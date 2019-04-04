@@ -107,30 +107,49 @@ def _prepare_test_project_execution():
 def _generate_test_session(side_manager, project_id):
     test_project, test_suites, tests = side_manager.get_project(project_id)
 
-    driver = None
-    for test_suite in test_suites:
-        for test_id in test_suite['tests']:
-            for idx, test in enumerate(tests[test_id]['commands']):
-                # prepare webdriver
-                driver = with_retry(
-                        Config.DRIVER_RETRY_COUNT, Config.DRIVER_RETRY_WAIT, initialize, Config.WEBDRIVER_URL)
+    @contextlib.contextmanager
+    def _test_suite_session(driver, test_suite):
+        def _():
+            for test_id in test_suite['tests']:
+                yield test_id
 
-                try:
-                    yield driver, test_project, test_suite, tests[test_id], idx, test
-                except Exception:
-                    if driver:
-                        driver.close()
-                        driver = None
-
-            if not test_suite.get('persistSessiona', False):
-                if driver:
-                    driver.close()
-                    driver = None
+        yield driver, _
 
         # close driver on test_suite execution finished
         if driver:
             driver.close()
             driver = None
+
+    @contextlib.contextmanager
+    def _tests_session(driver, test_suite, test_id):
+        def _():
+            for idx, test in enumerate(tests[test_id]['commands']):
+                yield idx, test
+
+        # prepare webdriver
+        driver = with_retry(Config.DRIVER_RETRY_COUNT, Config.DRIVER_RETRY_WAIT, initialize, Config.WEBDRIVER_URL)
+
+        try:
+            yield driver, _
+        except Exception:
+            # close driver if exception or test-failure occur in tests session
+            if driver:
+                driver.close()
+                driver = None
+
+        # close driver if test_suite require session close
+        if not test_suite.get('persistSessiona', False):
+            if driver:
+                driver.close()
+                driver = None
+
+    driver = None
+    for test_suite in test_suites:
+        with _test_suite_session(driver, test_suite) as (driver, gen_tests):
+            for test_id in gen_tests():
+                with _tests_session(driver, test_suite, test_id) as (driver, gen_test_command):
+                    for idx, test in gen_test_command():
+                        yield driver, test_project, test_suite, tests[test_id], idx, test
 
 
 def _execute_side_file(side_manager, project_id):

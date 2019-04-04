@@ -4,6 +4,7 @@ import time
 import pathlib
 import traceback
 import datetime
+import contextlib
 from .commands import TEST_HANDLER_MAP
 from .utils import with_retry
 from .init import initialize
@@ -78,30 +79,44 @@ def _call_hook_script(pattern):
                 exec(f.read())
 
 
-def _execute_side_file(driver, side_manager, project_id):
+@contextlib.contextmanager
+def _prepare_test_project_execution():
+    # hold test execute time
     execute_datetime = datetime.datetime.now().replace(microsecond=0).isoformat().replace(':', '-').replace('T', '.')
 
     # prepare output directory
     outdir = pathlib.Path(Config.OUTPUT_DIR) / execute_datetime
     outdir.mkdir(parents=True, exist_ok=True)
 
-    # start test
     output = []
-    _call_hook_script('pre*.py')
-    for test_project, test_suite, tests, idx, test in side_manager.get_tests_iter(project_id):
-        logger.info('TEST: {}.{}.{}.{} to {} with {}'.format(
-            test_suite['name'], tests['name'], idx, test['command'], test['target'], test['value']))
-        get_screenshot(driver, test_suite['name'], tests['name'], idx, test, outdir)
-        test_command_output = execute_test_command(driver, test_project, test_suite, test)
-        time.sleep(float(Config.DRIVER_COMMAND_WAIT) / 1000)
-        _store_test_command_output(output, test_suite, tests, test_command_output)
+    try:
+        _call_hook_script('pre*.py')
 
-        if test_command_output['is_failed']:
+        # execute test
+        yield output, outdir
+
+        # FIXME: call post script
+        # _call_hook_script('post*.py')
+    finally:
+        # output test result
+        with open(outdir / 'result.json', 'w') as f:
+            json.dump(output, f, indent=4)
+
+
+def _execute_side_file(driver, side_manager, project_id):
+    with _prepare_test_project_execution() as (output, outdir):
+        for test_project, test_suite, tests, idx, test in side_manager.get_tests_iter(project_id):
+            test_path_str = '{}.{}.{}.{}'.format(test_suite['name'], tests['name'], idx, test['command'])
+            logger.info('TEST: {} to {} with {}'.format(test_path_str, test['target'], test['value']))
+
             get_screenshot(driver, test_suite['name'], tests['name'], idx, test, outdir)
 
-    # output test result
-    with open(outdir / 'result.json', 'w') as f:
-        json.dump(output, f, indent=4)
+            test_command_output = execute_test_command(driver, test_project, test_suite, test)
+            _store_test_command_output(output, test_suite, tests, test_command_output)
+            time.sleep(float(Config.DRIVER_COMMAND_WAIT) / 1000)
+
+            if test_command_output['is_failed']:
+                get_screenshot(driver, test_suite['name'], tests['name'], idx, test, outdir)
 
 
 def _get_side_file_list_by_glob(pattern):

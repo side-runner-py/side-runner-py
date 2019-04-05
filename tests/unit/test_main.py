@@ -28,7 +28,7 @@ def test_main_failed_session_close(mocker, tmp_path):
     mocker.patch('side_runner_py.main.with_retry')
     mocker.patch('side_runner_py.main.get_screenshot')
     mocker.patch('side_runner_py.main.execute_test_command', side_effect=Exception('foobar'))
-    driver_close = mocker.patch('side_runner_py.main._close_driver_or_skip')
+    driver_close = mocker.patch('side_runner_py.main.SessionManager._close_driver_or_skip')
 
     # parepare mock test file
     sidefile_a = tmp_path / "a.json"
@@ -49,7 +49,7 @@ def test_main_persistent_session(mocker, tmp_path):
     mocker.patch('side_runner_py.main.with_retry')
     mocker.patch('side_runner_py.main.get_screenshot')
     mocker.patch('side_runner_py.main.execute_test_command').return_value = {'is_failed': False}
-    driver_close = mocker.patch('side_runner_py.main._close_driver_or_skip')
+    driver_close = mocker.patch('side_runner_py.main.SessionManager._close_driver_or_skip')
 
     # parepare mock test file
     sidefile_a = tmp_path / "a.json"
@@ -74,7 +74,7 @@ def test_main_non_persistent_session(mocker, tmp_path):
     mocker.patch('side_runner_py.main.with_retry')
     mocker.patch('side_runner_py.main.get_screenshot')
     mocker.patch('side_runner_py.main.execute_test_command').return_value = {'is_failed': False}
-    driver_close = mocker.patch('side_runner_py.main._close_driver_or_skip')
+    driver_close = mocker.patch('side_runner_py.main.SessionManager._close_driver_or_skip')
 
     # parepare mock test file
     sidefile_a = tmp_path / "a.json"

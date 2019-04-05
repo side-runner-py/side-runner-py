@@ -57,6 +57,6 @@ class Config:
     def init():
         parser = stingconf.Parser('Execute Selenium IDE (.side) tests', CONFIG_DEF)
         config = parser.parse(sys.argv[1:])
-        for key in [k for k in dir(config) if not k.startswith('_') and k.isupper()]:
-            setattr(Config, key, getattr(config, key))
-            logger.info("Config.{}: = {}".format(key, getattr(config, key)))
+        for k, v in config.items():
+            setattr(Config, k, v)
+            logger.info("Config.{}: = {}".format(k, v))

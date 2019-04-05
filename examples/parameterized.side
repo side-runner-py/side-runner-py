@@ -129,7 +129,7 @@
   }, {
     "id": "dd8bb8ef-ceb3-4b3e-b3b9-312e19794148",
     "name": "Input sum",
-    "persistSession": false,
+    "persistSession": true,
     "parallel": false,
     "timeout": 300,
     "tests": ["ade71960-f8d7-4bcf-b3ae-e67fbedcca33"]

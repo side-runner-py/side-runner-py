@@ -93,7 +93,7 @@
   "suites": [{
     "id": "8ad9ceea-938f-46d5-b7d9-af0b2832d7ad",
     "name": "Default Suite",
-    "persistSession": false,
+    "persistSession": true,
     "parallel": false,
     "timeout": 300,
     "tests": ["bcbde192-a28d-4c2b-996e-36fb1358a9f9"]

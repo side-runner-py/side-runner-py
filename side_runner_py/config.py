@@ -1,55 +1,62 @@
 import sys
-import os
-import argparse
+import yaml
+import stingconf
 from logging import getLogger
 logger = getLogger(__name__)
 
 
-def _cast_or_raw(value, type_class):
-    if value:
-        return type_class(value)
-    return value
+CONFIG_YAML = '''
+env_prefix: SIDE
+order:
+  - arg
+  - env
+  - default
+items:
+  webdriver-url:
+    default: http://webdriver:4444/wd/hub
+  test-file:
+    default: default.side
+  http-proxy:
+    default: ''
+    env:
+      no_prefix: true
+      ignorecase: true
+  https-proxy:
+    default: ''
+    env:
+      no_prefix: true
+      ignorecase: true
+  no-proxy:
+    default: ''
+    env:
+      no_prefix: true
+      ignorecase: true
+  output-dir:
+    default: ./output
+  driver-retry-count:
+    default: 5
+    type: int
+  driver-retry-wait:
+    default: 5
+    type: int
+  driver-element-wait:
+    default: 10
+    type: int
+  driver-command-wait:
+    default: 0
+    type: int
+  hook-scripts-dir:
+    default: hooks
+'''
 
-
-def _update_or_skip(target, key, data=None):
-    if not hasattr(target, key):
-        setattr(target, key, None)
-    if data:
-        setattr(target, key, data)
-    else:
-        return
-
-
-CONFIG_MAP = {
-    'webdriver-url': {'value': 'http://webdriver:4444/wd/hub'},
-    'side-file': {'value': 'default.side'},
-    'http-proxy': {'value': ''},
-    'https-proxy': {'value': ''},
-    'no-proxy': {'value': ''},
-    'output-dir': {'value': './output'},
-    'driver-retry-count': {'value': 5, 'type': int},
-    'driver-retry-wait': {'value': 5, 'type': int},
-    'driver-element-wait': {'value': 10, 'type': int},
-    'driver-command-wait': {'value': 0, 'type': int},
-    'hook-scripts-dir': {'value': 'hooks'},
-}
+CONFIG_DEF = yaml.safe_load(CONFIG_YAML)
 
 
 class Config:
     @staticmethod
     def init():
-        # prepare cmdline arg parser
-        parser = argparse.ArgumentParser(description='Execute Selenium IDE (.side) tests')
-        for key, opt in CONFIG_MAP.items():
-            type_class = opt.get('type', str)
-            parser.add_argument('--{}'.format(key), dest=key.replace('-', '_').upper(), type=type_class)
-        args = parser.parse_args(sys.argv[1:])
-
-        # set each config value from default, env, cmd
-        for key, default in CONFIG_MAP.items():
-            env_key = key.replace('-', '_').upper()
-            type_class = default.get('type', str)
-            setattr(Config, env_key, default['value'])
-            _update_or_skip(Config, env_key, _cast_or_raw(os.environ.get(env_key), type_class))
-            _update_or_skip(Config, env_key, _cast_or_raw(getattr(args, env_key), type_class))
-            logger.info("Config.{}: = {}".format(env_key, getattr(Config, env_key)))
+        parser = stingconf.Parser('Execute Selenium IDE (.side) tests', CONFIG_DEF)
+        config = parser.parse(sys.argv[1:])
+        for key in [k for k in dir(config) if not k.startswith('_') and k.isupper()]:
+            setattr(Config, key, getattr(config, key))
+            logger.info("Config.{}: = {}".format(key, getattr(config, key)))

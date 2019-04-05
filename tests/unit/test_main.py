@@ -55,7 +55,7 @@ def test_main_persistent_session(mocker, tmp_path):
     sidefile_a = tmp_path / "a.json"
     orig_test_project_a = {
         'id': 'foobar_a',
-        'suites': [{'name': 'foobar_a', 'id': 'foobar_a', 'tests': ['foobar_a'], 'persistSessiona': True}],
+        'suites': [{'name': 'foobar_a', 'id': 'foobar_a', 'tests': ['foobar_a'], 'persistSession': True}],
         'tests': [
             {'name': 'foobar_a', 'id': 'foobar_a',
                 'commands': [{'command': 'foobar', 'target': 'foobar', 'value': 'foobar'}]}
@@ -80,7 +80,7 @@ def test_main_non_persistent_session(mocker, tmp_path):
     sidefile_a = tmp_path / "a.json"
     orig_test_project_a = {
         'id': 'foobar_a',
-        'suites': [{'name': 'foobar_a', 'id': 'foobar_a', 'tests': ['foobar_a'], 'persistSessiona': False}],
+        'suites': [{'name': 'foobar_a', 'id': 'foobar_a', 'tests': ['foobar_a'], 'persistSession': False}],
         'tests': [
             {'name': 'foobar_a', 'id': 'foobar_a',
                 'commands': [{'command': 'foobar', 'target': 'foobar', 'value': 'foobar'}]}

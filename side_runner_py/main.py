@@ -106,7 +106,7 @@ def _prepare_test_project_execution():
 
 def _close_driver_or_skip(driver):
     logger.info('Close session {}'.format(driver))
-    if driver:
+    if driver is not None:
         driver.close()
         driver = None
 
@@ -148,7 +148,7 @@ def _tests_session(driver, test_suite, tests, test_id):
         _close_driver_or_skip(driver)
 
     # close driver if test_suite require session close
-    if not test_suite.get('persistSessiona', False):
+    if not test_suite.get('persistSession', False):
         _close_driver_or_skip(driver)
 
 

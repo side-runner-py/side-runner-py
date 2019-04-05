@@ -82,7 +82,8 @@ def _call_hook_script(pattern):
 @contextlib.contextmanager
 def _prepare_test_project_execution():
     # hold test execute time
-    execute_datetime = datetime.datetime.now().replace(microsecond=0).isoformat().replace(':', '-').replace('T', '.')
+    now = datetime.datetime.now()
+    execute_datetime = now.replace(microsecond=0).isoformat().replace(':', '-').replace('T', '.')
 
     # prepare output directory
     outdir = pathlib.Path(Config.OUTPUT_DIR) / execute_datetime
@@ -104,55 +105,61 @@ def _prepare_test_project_execution():
             json.dump(output, f, indent=4)
 
 
-def _close_driver_or_skip(driver):
-    logger.info('Close session {}'.format(driver))
-    if driver is not None:
-        driver.close()
-        driver = None
+class SessionManager():
+    def __init__(self):
+        self.driver = None
 
+    def _close_driver_or_skip(self):
+        logger.info('Close session {}'.format(self.driver))
+        if self.driver is not None:
+            self.driver.close()
+            self.driver = None
 
-@contextlib.contextmanager
-def _test_suite_session(driver, test_suite):
-    def _():
-        for test_id in test_suite['tests']:
-            yield test_id
+    @contextlib.contextmanager
+    def _test_suite_session(self, test_suite):
+        def _():
+            for test_id in test_suite['tests']:
+                yield test_id
 
-    logger.debug('Enter test-suite {}'.format(test_suite['id']))
-    yield driver, _
-    logger.debug('Leave test-suite {}'.format(test_suite['id']))
+        logger.debug('Enter test-suite {}'.format(test_suite['id']))
+        yield _
+        logger.debug('Leave test-suite {}'.format(test_suite['id']))
 
-    # close driver on test_suite execution finished
-    _close_driver_or_skip(driver)
+        # close driver on test_suite execution finished
+        self._close_driver_or_skip()
 
+    @contextlib.contextmanager
+    def _tests_session(self, test_suite, tests, test_id):
+        def _():
+            for idx, test in enumerate(tests[test_id]['commands']):
+                yield idx, test
 
-@contextlib.contextmanager
-def _tests_session(driver, test_suite, tests, test_id):
-    def _():
-        for idx, test in enumerate(tests[test_id]['commands']):
-            yield idx, test
+        # prepare webdriver
+        logger.info('Using session {}'.format(self.driver))
+        if self.driver is None:
+            self.driver = with_retry(Config.DRIVER_RETRY_COUNT, Config.DRIVER_RETRY_WAIT,
+                                     initialize, Config.WEBDRIVER_URL)
+            logger.info('Create session {}'.format(self.driver))
 
-    # prepare webdriver
-    if not driver:
-        logger.info('Create session {}'.format(test_id))
-        driver = with_retry(Config.DRIVER_RETRY_COUNT, Config.DRIVER_RETRY_WAIT, initialize, Config.WEBDRIVER_URL)
+        try:
+            logger.debug('Enter tests {}'.format(test_id))
+            yield _
+            logger.debug('Leave tests {}'.format(test_id))
+        except Exception:
+            traceback_msg = traceback.format_exc()
+            logger.warning(traceback_msg)
 
-    try:
-        logger.debug('Enter tests {}'.format(test_id))
-        yield driver, _
-        logger.debug('Leave tests {}'.format(test_id))
-    except Exception:
-        traceback_msg = traceback.format_exc()
-        logger.warning(traceback_msg)
+            # close driver if exception or test-failure occur in tests session
+            self._close_driver_or_skip()
 
-        # close driver if exception or test-failure occur in tests session
-        _close_driver_or_skip(driver)
-
-    # close driver if test_suite require session close
-    if not test_suite.get('persistSession', False):
-        _close_driver_or_skip(driver)
+        # close driver if test_suite require session close
+        if not test_suite.get('persistSession', False):
+            self._close_driver_or_skip()
 
 
 def _execute_test_command(driver, test_project, test_suite, tests, idx, test, output, outdir):
+    logger.info('Using session {}'.format(driver))
+
     # log test-command
     test_path_str = '{}.{}.{}.{}'.format(test_suite['name'], tests['name'], idx, test['command'])
     logger.info('TEST: {} to {} with {}'.format(test_path_str, test['target'], test['value']))
@@ -169,17 +176,16 @@ def _execute_test_command(driver, test_project, test_suite, tests, idx, test, ou
         raise Exception(test_command_output)
 
 
-def _execute_side_file(side_manager, project_id):
+def _execute_side_file(session_manager, side_manager, project_id):
     test_project, test_suites, tests = side_manager.get_project(project_id)
 
     with _prepare_test_project_execution() as (output, outdir):
-        driver = None
         for test_suite in test_suites:
-            with _test_suite_session(driver, test_suite) as (driver, gen_tests):
+            with session_manager._test_suite_session(test_suite) as gen_tests:
                 for test_id in gen_tests():
-                    with _tests_session(driver, test_suite, tests, test_id) as (driver, gen_test_command):
+                    with session_manager._tests_session(test_suite, tests, test_id) as gen_test_command:
                         for idx, test in gen_test_command():
-                            _execute_test_command(driver, test_project, test_suite,
+                            _execute_test_command(session_manager.driver, test_project, test_suite,
                                                   tests[test_id], idx, test, output, outdir)
 
 
@@ -207,8 +213,9 @@ def main():
     ]
 
     # execute test projects
+    session_manager = SessionManager()
     for project_id in loaded_project_ids:
-        _execute_side_file(side_manager, project_id)
+        _execute_side_file(session_manager, side_manager, project_id)
 
 
 if __name__ == '__main__':

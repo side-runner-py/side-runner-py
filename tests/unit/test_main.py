@@ -39,7 +39,7 @@ def test_main_failed_session_close(mocker, tmp_path):
     sidefile_a.write_text(json.dumps(orig_test_project_a))
 
     # call main with mocked driver, etc...
-    with mock.patch.object(config.sys, 'argv', ['prog_name', '--side-file={}'.format(tmp_path/"*.json")]):
+    with mock.patch.object(config.sys, 'argv', ['prog_name', '--test-file={}'.format(tmp_path/"*.json")]):
         main.main()
         # driver close called at failure-test, test-suite, tests end
         assert driver_close.call_count == 3
@@ -64,7 +64,7 @@ def test_main_persistent_session(mocker, tmp_path):
     sidefile_a.write_text(json.dumps(orig_test_project_a))
 
     # call main with mocked driver, etc...
-    with mock.patch.object(config.sys, 'argv', ['prog_name', '--side-file={}'.format(tmp_path/"*.json")]):
+    with mock.patch.object(config.sys, 'argv', ['prog_name', '--test-file={}'.format(tmp_path/"*.json")]):
         main.main()
         # driver close called at test-suite end
         assert driver_close.call_count == 1
@@ -89,7 +89,7 @@ def test_main_non_persistent_session(mocker, tmp_path):
     sidefile_a.write_text(json.dumps(orig_test_project_a))
 
     # call main with mocked driver, etc...
-    with mock.patch.object(config.sys, 'argv', ['prog_name', '--side-file={}'.format(tmp_path/"*.json")]):
+    with mock.patch.object(config.sys, 'argv', ['prog_name', '--test-file={}'.format(tmp_path/"*.json")]):
         main.main()
         # driver close called at test-suite, tests end
         assert driver_close.call_count == 2
@@ -115,7 +115,7 @@ def test_main_multiple_not_shared(mocker, tmp_path):
     sidefile_b.write_text(json.dumps(orig_test_project_b))
 
     # call main with mocked driver, etc...
-    with mock.patch.object(config.sys, 'argv', ['prog_name', '--side-file={}'.format(tmp_path/"*.json")]):
+    with mock.patch.object(config.sys, 'argv', ['prog_name', '--test-file={}'.format(tmp_path/"*.json")]):
         main.main()
 
 
@@ -139,5 +139,5 @@ def test_main_multiple_shared(mocker, tmp_path):
     sidefile_b.write_text(json.dumps(orig_test_project_b))
 
     # call main with mocked driver, etc...
-    with mock.patch.object(config.sys, 'argv', ['prog_name', '--side-file={}'.format(tmp_path/"*.json")]):
+    with mock.patch.object(config.sys, 'argv', ['prog_name', '--test-file={}'.format(tmp_path/"*.json")]):
         main.main()

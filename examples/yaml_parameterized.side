@@ -1,0 +1,57 @@
+id: bc8471d4-bf4b-4a5c-a8b8-3ae895246541
+version: '2.0'
+name: 'Parameterized testing (yaml)'
+url: https://www.seleniumeasy.com
+urls: ['https://www.seleniumeasy.com/']
+plugins: []
+suites:
+- id: 50c3ab25-7839-47fb-a499-6157f182e2a0
+  name: 'Input message (yaml)'
+  parallel: false
+  persistSession: true
+  tests: [65e3f4b8-4e0e-47db-b49b-38a8de4daa08]
+  timeout: 300
+tests:
+- id: 65e3f4b8-4e0e-47db-b49b-38a8de4daa08
+  name: Input form
+  commands:
+  - command: open
+    comment: ''
+    id: 29115901-2d6b-43d1-94a9-3ef98e9cfbe9
+    target: /test/basic-first-form-demo.html
+    targets: []
+    value: ''
+  - command: type
+    comment: ''
+    id: f9eb72dd-2245-4862-9a20-83583794496c
+    target: id=user-message
+    targets:
+    - [id=user-message, id]
+    - ['css=.form-group > #user-message', 'css:finder']
+    - ['xpath=//input[@id=''user-message'']', 'xpath:attributes']
+    - ['xpath=//form[@id=''get-input'']/div/input', 'xpath:idRelative']
+    - [xpath=//input, 'xpath:position']
+    value: '{$ message $}'
+  - command: click
+    comment: ''
+    id: 8b195663-ab17-4fcb-ae39-f252de069527
+    target: css=.btn:nth-child(2)
+    targets:
+    - ['css=.btn:nth-child(2)', 'css:finder']
+    - ['xpath=(//button[@type=''button''])[2]', 'xpath:attributes']
+    - ['xpath=//form[@id=''get-input'']/button', 'xpath:idRelative']
+    - [xpath=//form/button, 'xpath:position']
+    - ['xpath=//button[contains(.,''Show Message'')]', 'xpath:innerText']
+    value: ''
+  - command: verifyText
+    comment: ''
+    id: 68a86db8-7e9b-44d7-b8c1-1cca2917fdd5
+    target: id=display
+    targets:
+    - [id=display, id]
+    - [css=#display, 'css:finder']
+    - ['xpath=//span[@id=''display'']', 'xpath:attributes']
+    - ['xpath=//div[@id=''user-message'']/span', 'xpath:idRelative']
+    - [xpath=//div/span, 'xpath:position']
+    - ['xpath=//span[contains(.,''Message'')]', 'xpath:innerText']
+    value: '{$ message $}'

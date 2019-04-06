@@ -10,9 +10,9 @@ def print_result(suite_name, test_name, is_failed):
 
 def is_expected(command):
     if 'expect failure' in command['comment']:
-        return command['is_failed'] == True
+        return command['is_failed'] is True
     else:
-        return command['is_failed'] == False
+        return command['is_failed'] is False
 
 
 with open(sys.argv[1]) as f:

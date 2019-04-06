@@ -136,3 +136,13 @@ class TestSIDEProjectManager:
         assert test_suites_a == orig_test_project_a['suites']
         assert tests_a == {'foobar_a': {'id': 'foobar_a'}}
         assert tests_b == {'foobar_a': {'id': 'foobar_a'}, 'foobar_b': {'id': 'foobar_b'}}
+
+    def test_parse_yaml_side_file(self, mocker):
+        mocker.patch('side_runner_py.side.open')
+        mocker.patch('json.load').side_effect = Exception()
+        mocker.patch('yaml.safe_load').return_value = {}
+
+        tests = []
+        side_manager = SIDEProjectManager()
+        side_manager._attach_params('foobar.yml', tests)
+        assert tests == []

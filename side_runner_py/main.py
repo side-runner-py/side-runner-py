@@ -193,12 +193,15 @@ def _get_side_file_list_by_glob(pattern):
     # get SIDE file and param file absolute path pair
     base_dir = pathlib.Path(pattern).parent
     for side_filename in base_dir.glob(pathlib.Path(pattern).name):
-        param_file_fullpath = base_dir / '{}_params.json'.format(side_filename.stem)
+        extentions = ['json', 'yml', 'yaml']
+        param_file_fullpaths = [base_dir / '{}_params.{}'.format(side_filename.stem, ext) for ext in extentions]
         side_file_fullpath = base_dir / side_filename
-        if not param_file_fullpath.exists():
-            yield (side_file_fullpath, None)
+        for param_file_fullpath in param_file_fullpaths:
+            if param_file_fullpath.exists():
+                yield (side_file_fullpath, param_file_fullpath)
+                break
         else:
-            yield (side_file_fullpath, param_file_fullpath)
+            yield (side_file_fullpath, None)
 
 
 def main():

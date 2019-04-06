@@ -16,6 +16,16 @@ def test_get_side_fixed_file_list_by_glob(tmp_path):
     assert len(list(main._get_side_file_list_by_glob(str(sidefile)))) == 1
 
 
+@pytest.mark.parametrize('extension', [('json'), ('yml'), ('yaml')])
+def test_get_side_params_file(tmp_path, extension):
+    sidefile = tmp_path / "a.json"
+    sidefile.write_text("[]")
+    paramsfile = tmp_path / "a_params.{}".format(extension)
+    paramsfile.write_text("[]")
+    side_fullpath, params_fullpath = list(main._get_side_file_list_by_glob(str(sidefile)))[0]
+    assert str(params_fullpath) == str(paramsfile)
+
+
 def test_main_with_glob_no_match(mocker):
     mocker.patch('side_runner_py.main.with_retry')
     os.environ["SIDE_FILE"] = "foobar_not_existed_filename.side"

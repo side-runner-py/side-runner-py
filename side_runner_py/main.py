@@ -209,7 +209,7 @@ def main():
     side_manager = SIDEProjectManager()
     loaded_project_ids = [
         side_manager.add_project(side_filename, param_filename)
-        for side_filename, param_filename in _get_side_file_list_by_glob(Config.SIDE_FILE)
+        for side_filename, param_filename in _get_side_file_list_by_glob(Config.TEST_FILE)
     ]
 
     # execute test projects

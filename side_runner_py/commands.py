@@ -142,9 +142,18 @@ def execute_webdriver_choose_ok_on_visible_confirmation(driver, test_project, te
     Alert(driver).accept()
 
 
+def execute_assert_text(driver, test_project, test_suite, test_dict):
+    element = _wait_element(driver, test_dict['target'])
+    expect = test_dict['value']
+    actual = element.text
+    logger.info('ASSERT TEXT: expected {}, actual {}'.format(expect, actual))
+    if expect != actual:
+        raise Exception('execute_assert_text: expected {}, actual {}'.format(expect, actual))
+
+
 def execute_verify_text(driver, test_project, test_suite, test_dict):
-    # FIXME: imple verify (get text and assert)
-    _wait_element(driver, test_dict['target'])
+    element = _wait_element(driver, test_dict['target'])
+    logger.info('VERIFY TEXT: expected {}, actual {}'.format(test_dict['value'], element.text))
 
 
 TEST_HANDLER_MAP = {
@@ -156,6 +165,7 @@ TEST_HANDLER_MAP = {
     'doubleClick': execute_double_click,
     'type': execute_type,
     'pause': execute_pause,
+    'assertText': execute_assert_text,
     'verifyText': execute_verify_text,
     'mouseOver': execute_mouse_over,
     'select': execute_select,

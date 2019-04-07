@@ -1,0 +1,68 @@
+{
+  "id": "107fa2ad-fc11-40f6-a4b2-203e3b6abf0c",
+  "version": "2.0",
+  "name": "Failure testing",
+  "url": "https://www.seleniumeasy.com",
+  "tests": [{
+    "id": "bb9ea4b6-4de1-49a0-976e-0df653e2b8e4",
+    "name": "Assert text incorrectly",
+    "commands": [{
+      "id": "265311fa-b28d-4ee3-b5c1-d240c544a5f1",
+      "comment": "",
+      "command": "open",
+      "target": "/test/basic-first-form-demo.html",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "3758d8d0-cd9d-461e-b19c-df7f576edfed",
+      "comment": "",
+      "command": "type",
+      "target": "id=user-message",
+      "targets": [
+        ["id=user-message", "id"],
+        ["css=.form-group > #user-message", "css:finder"],
+        ["xpath=//input[@id='user-message']", "xpath:attributes"],
+        ["xpath=//form[@id='get-input']/div/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": "Actual Message"
+    }, {
+      "id": "5f8a86e8-252d-498c-88a7-83b3f2296c09",
+      "comment": "",
+      "command": "click",
+      "target": "css=.btn:nth-child(2)",
+      "targets": [
+        ["css=.btn:nth-child(2)", "css:finder"],
+        ["xpath=(//button[@type='button'])[2]", "xpath:attributes"],
+        ["xpath=//form[@id='get-input']/button", "xpath:idRelative"],
+        ["xpath=//form/button", "xpath:position"],
+        ["xpath=//button[contains(.,'Show Message')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "dee9e5cf-2c24-4353-a2fa-583e0302be0e",
+      "comment": "expect failure",
+      "command": "assertText",
+      "target": "id=display",
+      "targets": [
+        ["id=display", "id"],
+        ["css=#display", "css:finder"],
+        ["xpath=//span[@id='display']", "xpath:attributes"],
+        ["xpath=//div[@id='user-message']/span", "xpath:idRelative"],
+        ["xpath=//div/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Message')]", "xpath:innerText"]
+      ],
+      "value": "Expected Message"
+    }]
+  }],
+  "suites": [{
+    "id": "0a6cf3c8-bb90-49fb-86b7-1734695fe032",
+    "name": "Failure Suite",
+    "persistSession": true,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["bb9ea4b6-4de1-49a0-976e-0df653e2b8e4"]
+  }],
+  "urls": ["https://www.seleniumeasy.com/"],
+  "plugins": []
+}

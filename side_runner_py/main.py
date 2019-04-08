@@ -1,10 +1,11 @@
 import os.path
 import json
 import time
-import pathlib
+import glob
 import traceback
 import datetime
 import contextlib
+from pathlib import Path
 from .commands import TEST_HANDLER_MAP
 from .utils import with_retry
 from .init import initialize
@@ -72,7 +73,7 @@ def _store_test_command_output(output, test_suite, tests, test_command_output):
 
 
 def _call_hook_script(pattern):
-    for filename in pathlib.Path(Config.HOOK_SCRIPTS_DIR).glob(pattern):
+    for filename in Path(Config.HOOK_SCRIPTS_DIR).glob(pattern):
         if filename.exists():
             with filename.open() as f:
                 logger.info('Call hookscript {}'. format(filename))
@@ -86,7 +87,7 @@ def _prepare_test_project_execution():
     execute_datetime = now.replace(microsecond=0).isoformat().replace(':', '-').replace('T', '.')
 
     # prepare output directory
-    outdir = pathlib.Path(Config.OUTPUT_DIR) / execute_datetime
+    outdir = Path(Config.OUTPUT_DIR) / execute_datetime
     outdir.mkdir(parents=True, exist_ok=True)
 
     output = []
@@ -191,11 +192,9 @@ def _execute_side_file(session_manager, side_manager, project_id):
 
 def _get_side_file_list_by_glob(pattern):
     # get SIDE file and param file absolute path pair
-    base_dir = pathlib.Path(pattern).parent
-    for side_filename in base_dir.glob(pathlib.Path(pattern).name):
+    for side_file_fullpath in [Path(p).resolve() for p in glob.glob(pattern)]:
         extentions = ['json', 'yml', 'yaml']
-        param_file_fullpaths = [base_dir / '{}_params.{}'.format(side_filename.stem, ext) for ext in extentions]
-        side_file_fullpath = base_dir / side_filename
+        param_file_fullpaths = [side_file_fullpath.parent / '{}_params.{}'.format(side_file_fullpath.stem, ext) for ext in extentions]
         for param_file_fullpath in param_file_fullpaths:
             if param_file_fullpath.exists():
                 yield (side_file_fullpath, param_file_fullpath)

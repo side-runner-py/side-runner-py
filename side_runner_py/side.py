@@ -1,4 +1,5 @@
 import json
+import yaml
 from copy import deepcopy
 from itertools import product
 from functools import reduce
@@ -49,7 +50,7 @@ class SIDEProjectManager:
         # parse json
         test_project = {}
         with open(filename, 'r') as f:
-            test_project = json.load(f)
+            test_project = _try_to_load(f)
 
         # load test suites
         test_suites = test_project['suites']
@@ -64,7 +65,7 @@ class SIDEProjectManager:
     def _attach_params(self, params_filename, tests):
         # parse json
         with open(params_filename, 'r') as f:
-            test_params = json.load(f)
+            test_params = _try_to_load(f)
 
         # calc matrix param
         for test_param in test_params:
@@ -160,6 +161,18 @@ def _dict_product(d):
         return acc
 
     return [reduce(_combine, item, {}) for item in product(*[[{k: v} for v in arr] for k, arr in d.items()])]
+
+
+def _try_to_load(f):
+    s = f.read()
+    try:
+        return json.loads(s)
+    except Exception as json_exc:
+        try:
+            return yaml.safe_load(s)
+        except Exception:
+            # always throws json decode error
+            raise json_exc
 
 
 if __name__ == '__main__':

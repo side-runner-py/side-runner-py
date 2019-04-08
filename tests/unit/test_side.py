@@ -1,4 +1,5 @@
 import json
+import yaml
 import pytest
 from side_runner_py.side import SIDEProjectManager
 
@@ -6,13 +7,13 @@ from side_runner_py.side import SIDEProjectManager
 class TestSIDEProjectManager:
     def test_parse_empty_side_file(self, mocker):
         mocker.patch('side_runner_py.side.open')
-        mocker.patch('json.load').return_value = {'id': 'foobar', 'suites': [], 'tests': []}
+        mocker.patch('side_runner_py.side._try_to_load').return_value = {'id': 'foobar', 'suites': [], 'tests': []}
         side_manager = SIDEProjectManager()
         side_manager.add_project('foobar.side', 'foobar_params.json')
 
     def test_parse_invalid_side_file(self, mocker):
         mocker.patch('side_runner_py.side.open')
-        mocker.patch('json.load').return_value = {}
+        mocker.patch('side_runner_py.side._try_to_load').return_value = {}
 
         with pytest.raises(KeyError):
             side_manager = SIDEProjectManager()
@@ -20,7 +21,7 @@ class TestSIDEProjectManager:
 
     def test_attach_empty_params(self, mocker):
         mocker.patch('side_runner_py.side.open')
-        mocker.patch('json.load').return_value = {}
+        mocker.patch('side_runner_py.side._try_to_load').return_value = {}
 
         tests = []
         side_manager = SIDEProjectManager()
@@ -39,7 +40,7 @@ class TestSIDEProjectManager:
             },
         ]
         mocker.patch('side_runner_py.side.open')
-        mocker.patch('json.load').return_value = params
+        mocker.patch('side_runner_py.side._try_to_load').return_value = params
 
         tests = {'foobar': {"id": "foobar", "name": "Input form"}}
         side_manager = SIDEProjectManager()
@@ -60,7 +61,7 @@ class TestSIDEProjectManager:
             },
         ]
         mocker.patch('side_runner_py.side.open')
-        mocker.patch('json.load').return_value = params
+        mocker.patch('side_runner_py.side._try_to_load').return_value = params
 
         tests = {'foobar': {"id": "foobar", "name": "Input form"}}
         side_manager = SIDEProjectManager()
@@ -136,3 +137,20 @@ class TestSIDEProjectManager:
         assert test_suites_a == orig_test_project_a['suites']
         assert tests_a == {'foobar_a': {'id': 'foobar_a'}}
         assert tests_b == {'foobar_a': {'id': 'foobar_a'}, 'foobar_b': {'id': 'foobar_b'}}
+
+    def test_parse_yaml_side_file(self, tmp_path):
+        sidefile = tmp_path / "yaml.side"
+        orig_test_project = {'suites': [], 'tests': [], 'id': 'foobar'}
+        sidefile.write_text(yaml.dump(orig_test_project))
+
+        paramsfile = tmp_path / "yaml_params.yml"
+        orig_params = []
+        paramsfile.write_text(yaml.dump(orig_params))
+
+        side_manager = SIDEProjectManager()
+        project_id = side_manager.add_project(str(sidefile), str(paramsfile))
+        test_project, test_suites, tests = side_manager.get_project(project_id)
+
+        assert project_id == 'foobar'
+        assert test_suites == orig_test_project['suites']
+        assert tests == {}

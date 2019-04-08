@@ -1,0 +1,4 @@
+- test_name: Input form
+  params_type: list
+  params:
+  - message: FooBar

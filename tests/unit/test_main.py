@@ -6,14 +6,23 @@ from side_runner_py import main, config
 
 
 def test_get_side_file_list_by_glob():
-    with pytest.raises(ValueError):
-        assert list(main._get_side_file_list_by_glob('')) == []
+    assert list(main._get_side_file_list_by_glob('')) == []
 
 
 def test_get_side_fixed_file_list_by_glob(tmp_path):
     sidefile = tmp_path / "a.json"
     sidefile.write_text("[]")
     assert len(list(main._get_side_file_list_by_glob(str(sidefile)))) == 1
+
+
+def test_get_side_file_list_by_relative_glob(tmp_path):
+    os.chdir(tmp_path)
+    (tmp_path / "rel").mkdir(parents=True, exist_ok=True)
+    sidefile = tmp_path / "rel/a.json"
+    sidefile.write_text("[]")
+    file_list = list(main._get_side_file_list_by_glob("./rel/*.json"))
+    assert file_list == [(sidefile, None)]
+    assert len(file_list) == 1
 
 
 @pytest.mark.parametrize('extension', [('json'), ('yml'), ('yaml')])

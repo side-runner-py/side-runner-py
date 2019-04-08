@@ -16,6 +16,16 @@ def test_get_side_fixed_file_list_by_glob(tmp_path):
     assert len(list(main._get_side_file_list_by_glob(str(sidefile)))) == 1
 
 
+def test_get_side_file_list_by_relative_glob(tmp_path):
+    os.chdir(tmp_path)
+    (tmp_path / "rel").mkdir(parents=True, exist_ok=True)
+    sidefile = tmp_path / "rel/a.json"
+    sidefile.write_text("[]")
+    file_list = list(main._get_side_file_list_by_glob("./rel/*.json"))
+    assert file_list == [(sidefile, None)]
+    assert len(file_list) == 1
+
+
 @pytest.mark.parametrize('extension', [('json'), ('yml'), ('yaml')])
 def test_get_side_params_file(tmp_path, extension):
     sidefile = tmp_path / "a.json"

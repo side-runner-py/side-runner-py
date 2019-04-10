@@ -12,6 +12,7 @@ from .init import initialize
 from .config import Config
 from .side import SIDEProjectManager
 from .hook import run_hook_per_project, run_hook_per_suite, run_hook_per_test
+from .variable import VariableStore
 
 from logging import basicConfig, INFO, getLogger
 logger = getLogger(__name__)
@@ -42,10 +43,10 @@ def _format_test_command_output(test, is_failed, failed_msg):
     }
 
 
-def execute_test_command(driver, test_project, test_suite, test_dict):
+def execute_test_command(driver, variable_store, test_project, test_suite, test_dict):
     try:
         handler_func = TEST_HANDLER_MAP[test_dict['command']]
-        handler_func(driver, test_project, test_suite, test_dict)
+        handler_func(driver, variable_store, test_project, test_suite, test_dict)
     except Exception:
         traceback_msg = traceback.format_exc()
         logger.warning(traceback_msg)
@@ -101,12 +102,16 @@ def _prepare_test_project_execution(test_project):
 class SessionManager():
     def __init__(self):
         self.driver = None
+        self.variable_store = VariableStore()
 
     def _close_driver_or_skip(self):
         logger.info('Close session {}'.format(self.driver))
         if self.driver is not None:
             self.driver.close()
             self.driver = None
+
+    def _reset_variable_store(self):
+        self.variable_store = VariableStore()
 
     @contextlib.contextmanager
     def _test_suite_session(self, test_project, test_suite):
@@ -124,7 +129,8 @@ class SessionManager():
             traceback_msg = traceback.format_exc()
             logger.warning(traceback_msg)
 
-        # close driver on test_suite execution finished
+        # reset variable store and close driver on test_suite execution finished
+        self._reset_variable_store()
         self._close_driver_or_skip()
 
     @contextlib.contextmanager
@@ -148,17 +154,19 @@ class SessionManager():
             logger.debug('Leave tests {}'.format(test_id))
         except Exception as exc:
             if not test_suite.get('persistSession', False):
+                self._reset_variable_store()
                 self._close_driver_or_skip()
                 return
 
             raise exc
 
-        # close driver if test_suite require session close
+        # reset variable store and close driver if test_suite require session close
         if not test_suite.get('persistSession', False):
+            self._reset_variable_store()
             self._close_driver_or_skip()
 
 
-def _execute_test_command(driver, test_project, test_suite, tests, idx, test, output, outdir):
+def _execute_test_command(driver, variable_store, test_project, test_suite, tests, idx, test, output, outdir):
     logger.info('Using session {}'.format(driver))
 
     # log test-command
@@ -168,7 +176,7 @@ def _execute_test_command(driver, test_project, test_suite, tests, idx, test, ou
     get_screenshot(driver, test_suite['name'], tests['name'], idx, test, outdir)
 
     # execute test command
-    test_command_output = execute_test_command(driver, test_project, test_suite, test)
+    test_command_output = execute_test_command(driver, variable_store, test_project, test_suite, test)
     _store_test_command_output(output, test_suite, tests, test_command_output)
     time.sleep(float(Config.DRIVER_COMMAND_WAIT) / 1000)
 
@@ -186,8 +194,8 @@ def _execute_side_file(session_manager, side_manager, project_id):
                 for test_id in gen_tests():
                     with session_manager._tests_session(test_project, test_suite, tests, test_id) as gen_test_command:
                         for idx, test in gen_test_command():
-                            _execute_test_command(session_manager.driver, test_project, test_suite,
-                                                  tests[test_id], idx, test, output, outdir)
+                            _execute_test_command(session_manager.driver, session_manager.variable_store,
+                                                  test_project, test_suite, tests[test_id], idx, test, output, outdir)
 
 
 def _get_side_file_list_by_glob(pattern):

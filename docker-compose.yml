@@ -4,7 +4,7 @@ services:
     build: .
     command: |
       side-runner-py
-        --test-file /src/examples/*.side
+        --test-file /src/examples/sides/*.side
         --output-dir /out
         --hook-scripts-dir /src/hooks
         --driver-retry-count 10

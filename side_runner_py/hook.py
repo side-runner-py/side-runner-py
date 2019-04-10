@@ -38,7 +38,7 @@ def _run_hook(pre_or_post, kind, match_funcs):
                 getattr(hook_module, method_name)()
 
 
-def run_per_project(pre_or_post, test_project):
+def run_hook_per_project(pre_or_post, test_project):
     kind = 'project'
     match_funcs = [
         partial(_contains_id_or_name, 'test_project', test_project),
@@ -46,7 +46,7 @@ def run_per_project(pre_or_post, test_project):
     _run_hook(pre_or_post, kind, match_funcs)
 
 
-def run_per_suite(pre_or_post, test_project, test_suite):
+def run_hook_per_suite(pre_or_post, test_project, test_suite):
     kind = 'suite'
     match_funcs = [
         partial(_contains_id_or_name, 'test_project', test_project),
@@ -55,7 +55,7 @@ def run_per_suite(pre_or_post, test_project, test_suite):
     _run_hook(pre_or_post, kind, match_funcs)
 
 
-def run_per_test(pre_or_post, test_project, test_suite, test):
+def run_hook_per_test(pre_or_post, test_project, test_suite, test):
     kind = 'test'
     match_funcs = [
         partial(_contains_id_or_name, 'test_project', test_project),

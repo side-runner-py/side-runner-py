@@ -32,7 +32,7 @@ def test_call_hook_any_cases(mocker, pre_or_post, kind, argc):
 
     # call hook
     ids = [{'id': '', 'name': ''} for i in range(argc)]
-    f = getattr(hook, 'run_per_' + kind)
+    f = getattr(hook, 'run_hook_per_' + kind)
     f(pre_or_post, *ids)
     assert hook_func.call_count == 1
 
@@ -47,10 +47,10 @@ def test_filter_hook_by_project_id(mocker):
     mocker.patch('side_runner_py.hook.load_hook_scripts').return_value = [hook_mock]
 
     # call hook
-    hook.run_per_project('pre', {'id': 'ID1', 'name': ''})
+    hook.run_hook_per_project('pre', {'id': 'ID1', 'name': ''})
     assert hook_func.call_count == 1
 
-    hook.run_per_project('pre', {'id': 'ID2', 'name': ''})
+    hook.run_hook_per_project('pre', {'id': 'ID2', 'name': ''})
     assert hook_func.call_count == 1
 
 
@@ -64,10 +64,10 @@ def test_filter_hook_by_project_name(mocker):
     mocker.patch('side_runner_py.hook.load_hook_scripts').return_value = [hook_mock]
 
     # call hook
-    hook.run_per_project('pre', {'id': '', 'name': 'Foo'})
+    hook.run_hook_per_project('pre', {'id': '', 'name': 'Foo'})
     assert hook_func.call_count == 1
 
-    hook.run_per_project('pre', {'id': '', 'name': 'Bar'})
+    hook.run_hook_per_project('pre', {'id': '', 'name': 'Bar'})
     assert hook_func.call_count == 1
 
 
@@ -82,13 +82,13 @@ def test_filter_hook_by_suite_id(mocker):
     mocker.patch('side_runner_py.hook.load_hook_scripts').return_value = [hook_mock]
 
     # call hook
-    hook.run_per_suite('pre', {'id': 'ID1', 'name': ''}, {'id': 'ID1', 'name': ''})
+    hook.run_hook_per_suite('pre', {'id': 'ID1', 'name': ''}, {'id': 'ID1', 'name': ''})
     assert hook_func.call_count == 1
 
-    hook.run_per_suite('pre', {'id': 'ID1', 'name': ''}, {'id': 'ID2', 'name': ''})
+    hook.run_hook_per_suite('pre', {'id': 'ID1', 'name': ''}, {'id': 'ID2', 'name': ''})
     assert hook_func.call_count == 1
 
-    hook.run_per_suite('pre', {'id': 'ID2', 'name': ''}, {'id': 'ID1', 'name': ''})
+    hook.run_hook_per_suite('pre', {'id': 'ID2', 'name': ''}, {'id': 'ID1', 'name': ''})
     assert hook_func.call_count == 2
 
 
@@ -103,13 +103,13 @@ def test_filter_hook_by_suite_name(mocker):
     mocker.patch('side_runner_py.hook.load_hook_scripts').return_value = [hook_mock]
 
     # call hook
-    hook.run_per_suite('pre', {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Foo Suite'})
+    hook.run_hook_per_suite('pre', {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Foo Suite'})
     assert hook_func.call_count == 1
 
-    hook.run_per_suite('pre', {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Bar Suite'})
+    hook.run_hook_per_suite('pre', {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Bar Suite'})
     assert hook_func.call_count == 1
 
-    hook.run_per_suite('pre', {'id': '', 'name': 'Bar'}, {'id': '', 'name': 'Foo Suite'})
+    hook.run_hook_per_suite('pre', {'id': '', 'name': 'Bar'}, {'id': '', 'name': 'Foo Suite'})
     assert hook_func.call_count == 2
 
 
@@ -125,13 +125,13 @@ def test_filter_hook_by_test_id(mocker):
     mocker.patch('side_runner_py.hook.load_hook_scripts').return_value = [hook_mock]
 
     # call hook
-    hook.run_per_test('pre', {'id': 'ID1', 'name': ''}, {'id': 'ID1', 'name': ''}, {'id': 'ID1', 'name': ''})
+    hook.run_hook_per_test('pre', {'id': 'ID1', 'name': ''}, {'id': 'ID1', 'name': ''}, {'id': 'ID1', 'name': ''})
     assert hook_func.call_count == 1
 
-    hook.run_per_test('pre', {'id': 'ID1', 'name': ''}, {'id': 'ID1', 'name': ''}, {'id': 'ID2', 'name': ''})
+    hook.run_hook_per_test('pre', {'id': 'ID1', 'name': ''}, {'id': 'ID1', 'name': ''}, {'id': 'ID2', 'name': ''})
     assert hook_func.call_count == 1
 
-    hook.run_per_test('pre', {'id': 'ID2', 'name': ''}, {'id': 'ID2', 'name': ''}, {'id': 'ID1', 'name': ''})
+    hook.run_hook_per_test('pre', {'id': 'ID2', 'name': ''}, {'id': 'ID2', 'name': ''}, {'id': 'ID1', 'name': ''})
     assert hook_func.call_count == 2
 
 
@@ -147,13 +147,13 @@ def test_filter_hook_by_test_name(mocker):
     mocker.patch('side_runner_py.hook.load_hook_scripts').return_value = [hook_mock]
 
     # call hook
-    hook.run_per_test('pre', {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Foo Test'})
+    hook.run_hook_per_test('pre', {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Foo Test'})
     assert hook_func.call_count == 1
 
-    hook.run_per_test('pre', {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Bar Test'})
+    hook.run_hook_per_test('pre', {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Bar Test'})
     assert hook_func.call_count == 1
 
-    hook.run_per_test('pre', {'id': '', 'name': 'Bar'}, {'id': '', 'name': 'Bar'}, {'id': '', 'name': 'Foo Test'})
+    hook.run_hook_per_test('pre', {'id': '', 'name': 'Bar'}, {'id': '', 'name': 'Bar'}, {'id': '', 'name': 'Foo Test'})
     assert hook_func.call_count == 2
 
 
@@ -169,16 +169,16 @@ def test_filter_hook_complexly(mocker):
     mocker.patch('side_runner_py.hook.load_hook_scripts').return_value = [hook_mock]
 
     # call hook
-    hook.run_per_test('pre', {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Foo Suite'}, {'id': '', 'name': 'Foo Test'})
+    hook.run_hook_per_test('pre', {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Foo Suite'}, {'id': '', 'name': 'Foo Test'})
     assert hook_func.call_count == 1
 
-    hook.run_per_test('pre', {'id': '', 'name': 'Bar'}, {'id': '', 'name': 'Foo Suite'}, {'id': '', 'name': 'Foo Test'})
+    hook.run_hook_per_test('pre', {'id': '', 'name': 'Bar'}, {'id': '', 'name': 'Foo Suite'}, {'id': '', 'name': 'Foo Test'})
     assert hook_func.call_count == 1
 
-    hook.run_per_test('pre', {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Bar Suite'}, {'id': '', 'name': 'Foo Test'})
+    hook.run_hook_per_test('pre', {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Bar Suite'}, {'id': '', 'name': 'Foo Test'})
     assert hook_func.call_count == 1
 
-    hook.run_per_test('pre', {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Foo Suite'}, {'id': '', 'name': 'Bar Test'})
+    hook.run_hook_per_test('pre', {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Foo Suite'}, {'id': '', 'name': 'Bar Test'})
     assert hook_func.call_count == 1
 
 
@@ -192,10 +192,10 @@ def test_never_call_hook_per_suite(mocker):
     mocker.patch('side_runner_py.hook.load_hook_scripts').return_value = [hook_mock]
 
     # call hook
-    hook.run_per_suite('pre', {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Foo Suite'})
+    hook.run_hook_per_suite('pre', {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Foo Suite'})
     assert hook_func.call_count == 0
 
-    hook.run_per_suite('pre', {'id': '', 'name': 'Bar'}, {'id': '', 'name': 'Foo Suite'})
+    hook.run_hook_per_suite('pre', {'id': '', 'name': 'Bar'}, {'id': '', 'name': 'Foo Suite'})
     assert hook_func.call_count == 0
 
 
@@ -209,8 +209,8 @@ def test_never_call_hook_per_test(mocker):
     mocker.patch('side_runner_py.hook.load_hook_scripts').return_value = [hook_mock]
 
     # call hook
-    hook.run_per_test('pre', {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Foo Suite'}, {'id': '', 'name': 'Foo Test'})
+    hook.run_hook_per_test('pre', {'id': '', 'name': 'Foo'}, {'id': '', 'name': 'Foo Suite'}, {'id': '', 'name': 'Foo Test'})
     assert hook_func.call_count == 0
 
-    hook.run_per_test('pre', {'id': '', 'name': 'Bar'}, {'id': '', 'name': 'Bar Suite'}, {'id': '', 'name': 'Foo Test'})
+    hook.run_hook_per_test('pre', {'id': '', 'name': 'Bar'}, {'id': '', 'name': 'Bar Suite'}, {'id': '', 'name': 'Foo Test'})
     assert hook_func.call_count == 0

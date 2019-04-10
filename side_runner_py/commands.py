@@ -157,6 +157,41 @@ def execute_verify_text(driver, store, test_project, test_suite, test_dict):
     logger.info('VERIFY TEXT: expected {}, actual {}'.format(test_dict['value'], element.text))
 
 
+def execute_assert(driver, store, test_project, test_suite, test_dict):
+    expect = test_dict['value']
+    actual = store.get(test_dict['target'])
+    logger.info('ASSERT: expected {}, actual {}'.format(expect, actual))
+    if expect != actual:
+        raise Exception('execute_assert: expected {}, actual {}'.format(expect, actual))
+
+
+def execute_verify(driver, store, test_project, test_suite, test_dict):
+    expect = test_dict['value']
+    actual = store.get(test_dict['target'])
+    logger.info('VERIFY: expected {}, actual {}'.format(expect, actual))
+
+
+def execute_store(driver, store, test_project, test_suite, test_dict):
+    store[test_dict['value']] = test_dict['target']
+
+
+def execute_store_text(driver, store, test_project, test_suite, test_dict):
+    element = _wait_element(driver, test_dict['target'])
+    store[test_dict['value']] = element.text
+
+
+def execute_store_attribute(driver, store, test_project, test_suite, test_dict):
+    locator, attribute = test_dict['target'].rsplit('@', 1)
+    element = _wait_element(driver, locator)
+    store[test_dict['value']] = element.get_attribute(attribute)
+
+
+def execute_store_value(driver, store, test_project, test_suite, test_dict):
+    # NOTE: This works for any input type element
+    element = _wait_element(driver, test_dict['target'])
+    store[test_dict['value']] = element.get_attribute('value')
+
+
 TEST_HANDLER_MAP = {
     'open': execute_open,
     'setWindowSize': execute_set_window_size,
@@ -177,4 +212,10 @@ TEST_HANDLER_MAP = {
     'chooseCancelOnNextConfirmation': lambda _1, _2, _3, _4, _5: None,
     'assertConfirmation': execute_assert_confirmation,
     'webdriverChooseOkOnVisibleConfirmation': execute_webdriver_choose_ok_on_visible_confirmation,
+    'assert': execute_assert,
+    'verify': execute_verify,
+    'store': execute_store,
+    'storeText': execute_store_text,
+    'storeAttribute': execute_store_attribute,
+    'storeValue': execute_store_value,
 }

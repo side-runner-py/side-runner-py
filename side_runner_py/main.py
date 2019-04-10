@@ -194,7 +194,8 @@ def _get_side_file_list_by_glob(pattern):
     # get SIDE file and param file absolute path pair
     for side_file_fullpath in [Path(p).resolve() for p in glob.glob(pattern)]:
         extentions = ['json', 'yml', 'yaml']
-        param_file_fullpaths = [side_file_fullpath.parent / '{}_params.{}'.format(side_file_fullpath.stem, ext) for ext in extentions]
+        param_file_fullpaths = [side_file_fullpath.parent / '{}_params.{}'.format(side_file_fullpath.stem, ext)
+                                for ext in extentions]
         for param_file_fullpath in param_file_fullpaths:
             if param_file_fullpath.exists():
                 yield (side_file_fullpath, param_file_fullpath)

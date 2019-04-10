@@ -11,6 +11,7 @@ from .utils import with_retry
 from .init import initialize
 from .config import Config
 from .side import SIDEProjectManager
+from .hook import run_hook_per_project, run_hook_per_suite, run_hook_per_test
 
 from logging import basicConfig, INFO, getLogger
 logger = getLogger(__name__)
@@ -72,16 +73,8 @@ def _store_test_command_output(output, test_suite, tests, test_command_output):
     tests_output['commands'].append(test_command_output)
 
 
-def _call_hook_script(pattern):
-    for filename in Path(Config.HOOK_SCRIPTS_DIR).glob(pattern):
-        if filename.exists():
-            with filename.open() as f:
-                logger.info('Call hookscript {}'. format(filename))
-                exec(f.read())
-
-
 @contextlib.contextmanager
-def _prepare_test_project_execution():
+def _prepare_test_project_execution(test_project):
     # hold test execute time
     now = datetime.datetime.now()
     execute_datetime = now.replace(microsecond=0).isoformat().replace(':', '-').replace('T', '.')
@@ -92,13 +85,12 @@ def _prepare_test_project_execution():
 
     output = []
     try:
-        _call_hook_script('pre*.py')
+        run_hook_per_project('pre', test_project)
 
         # execute test
         yield output, outdir
 
-        # FIXME: call post script
-        # _call_hook_script('post*.py')
+        run_hook_per_project('post', test_project)
 
     finally:
         # output test result
@@ -117,20 +109,22 @@ class SessionManager():
             self.driver = None
 
     @contextlib.contextmanager
-    def _test_suite_session(self, test_suite):
+    def _test_suite_session(self, test_project, test_suite):
         def _():
             for test_id in test_suite['tests']:
                 yield test_id
 
         logger.debug('Enter test-suite {}'.format(test_suite['id']))
+        run_hook_per_suite('pre', test_project, test_suite)
         yield _
+        run_hook_per_suite('post', test_project, test_suite)
         logger.debug('Leave test-suite {}'.format(test_suite['id']))
 
         # close driver on test_suite execution finished
         self._close_driver_or_skip()
 
     @contextlib.contextmanager
-    def _tests_session(self, test_suite, tests, test_id):
+    def _tests_session(self, test_project, test_suite, tests, test_id):
         def _():
             for idx, test in enumerate(tests[test_id]['commands']):
                 yield idx, test
@@ -144,7 +138,9 @@ class SessionManager():
 
         try:
             logger.debug('Enter tests {}'.format(test_id))
+            run_hook_per_test('pre', test_project, test_suite, tests[test_id])
             yield _
+            run_hook_per_test('post', test_project, test_suite, tests[test_id])
             logger.debug('Leave tests {}'.format(test_id))
         except Exception:
             traceback_msg = traceback.format_exc()
@@ -180,11 +176,11 @@ def _execute_test_command(driver, test_project, test_suite, tests, idx, test, ou
 def _execute_side_file(session_manager, side_manager, project_id):
     test_project, test_suites, tests = side_manager.get_project(project_id)
 
-    with _prepare_test_project_execution() as (output, outdir):
+    with _prepare_test_project_execution(test_project) as (output, outdir):
         for test_suite in test_suites:
-            with session_manager._test_suite_session(test_suite) as gen_tests:
+            with session_manager._test_suite_session(test_project, test_suite) as gen_tests:
                 for test_id in gen_tests():
-                    with session_manager._tests_session(test_suite, tests, test_id) as gen_test_command:
+                    with session_manager._tests_session(test_project, test_suite, tests, test_id) as gen_test_command:
                         for idx, test in gen_test_command():
                             _execute_test_command(session_manager.driver, test_project, test_suite,
                                                   tests[test_id], idx, test, output, outdir)

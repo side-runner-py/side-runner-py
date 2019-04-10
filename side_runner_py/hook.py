@@ -8,7 +8,7 @@ def _any_or_match(curr_id_or_name, id_or_name):
     return id_or_name == '*' or id_or_name == curr_id_or_name
 
 
-def _contains_id_or_name(conditions, kind, test_dict):
+def _contains_id_or_name(kind, test_dict, conditions):
     id = test_dict.get('id', '')
     name = test_dict.get('name', '')
 
@@ -24,46 +24,42 @@ def load_hook_scripts(hook_script_dir, pattern):
             yield loader.load_module()
 
 
-def run_per_project(pre_or_post, test_project):
-    method_name = '{}_project_run'.format(pre_or_post)
+def _run_hook(pre_or_post, kind, match_funcs):
+    method_name = '{}_{}_run'.format(pre_or_post, kind)
 
     for hook_module in load_hook_scripts(Config.HOOK_SCRIPTS_DIR, '*.py'):
         conditions = getattr(hook_module, 'conditions', None)
         if conditions is None:
             continue
 
-        if _contains_id_or_name(conditions, 'test_project', test_project):
+        if all([f(conditions) for f in match_funcs]):
             if getattr(hook_module, method_name, None):
-                print('Call {}-project hookscript {}'. format(pre_or_post, hook_module.__name__))
+                print('Call {}-{} hookscript {}'. format(pre_or_post, kind, hook_module.__name__))
                 getattr(hook_module, method_name)()
+
+
+def run_per_project(pre_or_post, test_project):
+    kind = 'project'
+    match_funcs = [
+        partial(_contains_id_or_name, 'test_project', test_project),
+    ]
+    _run_hook(pre_or_post, kind, match_funcs)
 
 
 def run_per_suite(pre_or_post, test_project, test_suite):
-    method_name = '{}_suite_run'.format(pre_or_post)
-
-    for hook_module in load_hook_scripts(Config.HOOK_SCRIPTS_DIR, '*.py'):
-        conditions = getattr(hook_module, 'conditions', None)
-        if conditions is None:
-            continue
-
-        if _contains_id_or_name(conditions, 'test_project', test_project) and \
-           _contains_id_or_name(conditions, 'test_suite', test_suite):
-            if getattr(hook_module, method_name, None):
-                print('Call {}-suite hookscript {}'. format(pre_or_post, hook_module.__name__))
-                getattr(hook_module, method_name)()
+    kind = 'suite'
+    match_funcs = [
+        partial(_contains_id_or_name, 'test_project', test_project),
+        partial(_contains_id_or_name, 'test_suite', test_suite),
+    ]
+    _run_hook(pre_or_post, kind, match_funcs)
 
 
 def run_per_test(pre_or_post, test_project, test_suite, test):
-    method_name = '{}_test_run'.format(pre_or_post)
-
-    for hook_module in load_hook_scripts(Config.HOOK_SCRIPTS_DIR, '*.py'):
-        conditions = getattr(hook_module, 'conditions', None)
-        if conditions is None:
-            continue
-
-        if _contains_id_or_name(conditions, 'test_project', test_project) and \
-           _contains_id_or_name(conditions, 'test_suite', test_suite) and \
-           _contains_id_or_name(conditions, 'test', test):
-            if getattr(hook_module, method_name, None):
-                print('Call {}-test hookscript {}'. format(pre_or_post, hook_module.__name__))
-                getattr(hook_module, method_name)()
+    kind = 'test'
+    match_funcs = [
+        partial(_contains_id_or_name, 'test_project', test_project),
+        partial(_contains_id_or_name, 'test_suite', test_suite),
+        partial(_contains_id_or_name, 'test', test),
+    ]
+    _run_hook(pre_or_post, kind, match_funcs)

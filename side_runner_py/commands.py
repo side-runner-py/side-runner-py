@@ -24,8 +24,9 @@ def execute_set_window_size(driver, store, test_project, test_suite, test_dict):
 
 
 def execute_execute_script(driver, store, test_project, test_suite, test_dict):
-    # FIXME: script argument support
-    driver.execute_script(test_dict['target'])
+    result = driver.execute_script(test_dict['target'])
+    if test_dict.get('value'):
+        store[test_dict['value']] = result
 
 
 # By.CLASS_NAME         By.ID                 By.NAME               By.TAG_NAME           By.mro(

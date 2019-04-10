@@ -114,11 +114,15 @@ class SessionManager():
             for test_id in test_suite['tests']:
                 yield test_id
 
-        logger.debug('Enter test-suite {}'.format(test_suite['id']))
-        run_hook_per_suite('pre', test_project, test_suite)
-        yield _
-        run_hook_per_suite('post', test_project, test_suite)
-        logger.debug('Leave test-suite {}'.format(test_suite['id']))
+        try:
+            logger.debug('Enter test-suite {}'.format(test_suite['id']))
+            run_hook_per_suite('pre', test_project, test_suite)
+            yield _
+            run_hook_per_suite('post', test_project, test_suite)
+            logger.debug('Leave test-suite {}'.format(test_suite['id']))
+        except Exception:
+            traceback_msg = traceback.format_exc()
+            logger.warning(traceback_msg)
 
         # close driver on test_suite execution finished
         self._close_driver_or_skip()
@@ -142,12 +146,12 @@ class SessionManager():
             yield _
             run_hook_per_test('post', test_project, test_suite, tests[test_id])
             logger.debug('Leave tests {}'.format(test_id))
-        except Exception:
-            traceback_msg = traceback.format_exc()
-            logger.warning(traceback_msg)
+        except Exception as exc:
+            if not test_suite.get('persistSession', False):
+                self._close_driver_or_skip()
+                return
 
-            # close driver if exception or test-failure occur in tests session
-            self._close_driver_or_skip()
+            raise exc
 
         # close driver if test_suite require session close
         if not test_suite.get('persistSession', False):
@@ -214,7 +218,9 @@ def main():
     # execute test projects
     session_manager = SessionManager()
     for project_id in loaded_project_ids:
+        logger.debug('Enter test-project {}'.format(project_id))
         _execute_side_file(session_manager, side_manager, project_id)
+        logger.debug('Leave test-project {}'.format(project_id))
 
 
 if __name__ == '__main__':

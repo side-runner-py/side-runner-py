@@ -1,0 +1,145 @@
+{
+  "id": "964b1c64-dace-400a-be89-5b0f08636838",
+  "version": "2.0",
+  "name": "Variable Store",
+  "url": "https://www.seleniumeasy.com",
+  "tests": [{
+    "id": "feb98d62-8e38-4e4f-b4f0-75e3198494ec",
+    "name": "Store and Verify",
+    "commands": [{
+      "id": "53d8232c-f9f1-4feb-9679-027fc9e17dbc",
+      "comment": "",
+      "command": "open",
+      "target": "/test/basic-first-form-demo.html",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "cabb1dec-5b33-4937-b8d6-8296cb85fc1a",
+      "comment": "",
+      "command": "store",
+      "target": "foo",
+      "targets": [],
+      "value": "varFoo"
+    }, {
+      "id": "bdd4369a-28c3-488d-a4eb-03595ae964d6",
+      "comment": "",
+      "command": "verify",
+      "target": "varFoo",
+      "targets": [],
+      "value": "foo"
+    }, {
+      "id": "ade12538-80db-419b-b9dd-077f4be24582",
+      "comment": "",
+      "command": "assert",
+      "target": "varFoo",
+      "targets": [],
+      "value": "foo"
+    }, {
+      "id": "74b4d50c-10dc-47de-a4af-8b01fd532fbf",
+      "comment": "",
+      "command": "executeScript",
+      "target": "return 'bar'",
+      "targets": [],
+      "value": "varFoo"
+    }, {
+      "id": "85e0337c-1ff7-41f2-9536-141d869904f6",
+      "comment": "",
+      "command": "assert",
+      "target": "varFoo",
+      "targets": [],
+      "value": "bar"
+    }, {
+      "id": "2730a681-7914-48dc-b42d-321213f7f288",
+      "comment": "",
+      "command": "type",
+      "target": "id=user-message",
+      "targets": [
+        ["id=user-message", "id"],
+        ["css=.form-group > #user-message", "css:finder"],
+        ["xpath=//input[@id='user-message']", "xpath:attributes"],
+        ["xpath=//form[@id='get-input']/div/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": "message"
+    }, {
+      "id": "1be13508-6969-4131-b98e-c620f5a16a4a",
+      "comment": "",
+      "command": "storeValue",
+      "target": "id=user-message",
+      "targets": [
+        ["id=user-message", "id"],
+        ["css=.form-group > #user-message", "css:finder"],
+        ["xpath=//input[@id='user-message']", "xpath:attributes"],
+        ["xpath=//form[@id='get-input']/div/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": "varInputMsg"
+    }, {
+      "id": "7a08fa84-20e6-463e-a34f-749bba93e5ef",
+      "comment": "",
+      "command": "assert",
+      "target": "varInputMsg",
+      "targets": [],
+      "value": "message"
+    }, {
+      "id": "91a28c51-f711-4c70-a61b-a010bdef27ba",
+      "comment": "",
+      "command": "click",
+      "target": "css=.btn:nth-child(2)",
+      "targets": [
+        ["css=.btn:nth-child(2)", "css:finder"],
+        ["xpath=(//button[@type='button'])[2]", "xpath:attributes"],
+        ["xpath=//form[@id='get-input']/button", "xpath:idRelative"],
+        ["xpath=//form/button", "xpath:position"],
+        ["xpath=//button[contains(.,'Show Message')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "997f7596-a627-445f-9be0-414f8ab1bf4f",
+      "comment": "",
+      "command": "storeText",
+      "target": "id=display",
+      "targets": [
+        ["id=display", "id"],
+        ["css=#display", "css:finder"],
+        ["xpath=//span[@id='display']", "xpath:attributes"],
+        ["xpath=//div[@id='user-message']/span", "xpath:idRelative"],
+        ["xpath=//div/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Message')]", "xpath:innerText"]
+      ],
+      "value": "varDisplayedMsg"
+    }, {
+      "id": "5a95c566-e347-47eb-9937-15bf1bf94e54",
+      "comment": "",
+      "command": "assert",
+      "target": "varDisplayedMsg",
+      "targets": [],
+      "value": "message"
+    }, {
+      "id": "f22a1433-7f30-40c8-b62c-324d3d26463e",
+      "comment": "",
+      "command": "storeAttribute",
+      "target": "xpath=//form[@id='get-input']/div/input@type",
+      "targets": [],
+      "value": "varInputType"
+    }, {
+      "id": "6fd4f2ec-3a3f-4fcb-a4f4-b6317c06e875",
+      "comment": "",
+      "command": "assert",
+      "target": "varInputType",
+      "targets": [],
+      "value": "text"
+    }]
+  }],
+  "suites": [{
+    "id": "54333b68-ba1e-4f1f-9382-871961e9055d",
+    "name": "Default Suite",
+    "persistSession": true,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["feb98d62-8e38-4e4f-b4f0-75e3198494ec"]
+  }],
+  "urls": ["https://www.seleniumeasy.com/"],
+  "plugins": []
+}
+

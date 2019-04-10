@@ -124,9 +124,6 @@ class SessionManager():
             traceback_msg = traceback.format_exc()
             logger.warning(traceback_msg)
 
-            # close driver if exception or test-failure occur in tests session
-            self._close_driver_or_skip()
-
         # close driver on test_suite execution finished
         self._close_driver_or_skip()
 
@@ -151,6 +148,7 @@ class SessionManager():
             logger.debug('Leave tests {}'.format(test_id))
         except Exception as exc:
             if not test_suite.get('persistSession', False):
+                self._close_driver_or_skip()
                 return
 
             raise exc

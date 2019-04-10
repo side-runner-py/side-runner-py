@@ -60,8 +60,29 @@ def test_main_failed_session_close(mocker, tmp_path):
     # call main with mocked driver, etc...
     with mock.patch.object(config.sys, 'argv', ['prog_name', '--test-file={}'.format(tmp_path/"*.json")]):
         main.main()
-        # driver close called at failure-test, test-suite, tests end
-        assert driver_close.call_count == 3
+        # driver close called at failure-tests-end, test-suite-end.
+        assert driver_close.call_count == 2
+
+
+def test_main_failed_persist_session_close(mocker, tmp_path):
+    mocker.patch('side_runner_py.main.with_retry')
+    mocker.patch('side_runner_py.main.get_screenshot')
+    mocker.patch('side_runner_py.main.execute_test_command', side_effect=Exception('foobar'))
+    driver_close = mocker.patch('side_runner_py.main.SessionManager._close_driver_or_skip')
+
+    # parepare mock test file
+    sidefile_a = tmp_path / "a.json"
+    orig_test_project_a = {
+        'suites': [{'id': 'foobar_a', 'tests': ['foobar_a'], 'persistSession': True}],
+        'tests': [{'id': 'foobar_a', 'commands': [{}]}], 'id': 'foobar_a'
+    }
+    sidefile_a.write_text(json.dumps(orig_test_project_a))
+
+    # call main with mocked driver, etc...
+    with mock.patch.object(config.sys, 'argv', ['prog_name', '--test-file={}'.format(tmp_path/"*.json")]):
+        main.main()
+        # driver close called at test-suite only.
+        assert driver_close.call_count == 1
 
 
 def test_main_persistent_session(mocker, tmp_path):

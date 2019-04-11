@@ -1,0 +1,2 @@
+class VariableStore(dict):
+    pass

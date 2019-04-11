@@ -11,21 +11,22 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 
-def execute_open(driver, test_project, test_suite, test_dict):
+def execute_open(driver, store, test_project, test_suite, test_dict):
     # get url
     # FIXME: url try order impl (environment -> ttest[open].target -> test_suite.url -> test_project.url)
     base_url = test_project.get('url')
     driver.get(base_url + test_dict['target'])
 
 
-def execute_set_window_size(driver, test_project, test_suite, test_dict):
+def execute_set_window_size(driver, store, test_project, test_suite, test_dict):
     w, h = test_dict['target'].split('x')
     driver.set_window_size(w, h)
 
 
-def execute_execute_script(driver, test_project, test_suite, test_dict):
-    # FIXME: script argument support
-    driver.execute_script(test_dict['target'])
+def execute_execute_script(driver, store, test_project, test_suite, test_dict):
+    result = driver.execute_script(test_dict['target'])
+    if test_dict.get('value'):
+        store[test_dict['value']] = result
 
 
 # By.CLASS_NAME         By.ID                 By.NAME               By.TAG_NAME           By.mro(
@@ -53,14 +54,14 @@ def _wait_element(driver, target_text):
     return element
 
 
-def execute_click(driver, test_project, test_suite, test_dict):
+def execute_click(driver, store, test_project, test_suite, test_dict):
     logger.debug("CLICK:", test_dict)
     element = _wait_element(driver, test_dict['target'])
     ActionChains(driver).click(element).perform()
     logger.debug("element:", element)
 
 
-def execute_click_at(driver, test_project, test_suite, test_dict):
+def execute_click_at(driver, store, test_project, test_suite, test_dict):
     logger.debug("CLICK AT:", test_dict)
     try:
         offsetx, offsety = ([int(s.strip()) for s in test_dict['value'].split(',')])
@@ -71,14 +72,14 @@ def execute_click_at(driver, test_project, test_suite, test_dict):
     logger.debug("element:", element)
 
 
-def execute_double_click(driver, test_project, test_suite, test_dict):
+def execute_double_click(driver, store, test_project, test_suite, test_dict):
     logger.debug("DOUBLE CLICK:", test_dict)
     element = _wait_element(driver, test_dict['target'])
     ActionChains(driver).double_click(element).perform()
     logger.debug("element:", element)
 
 
-def execute_type(driver, test_project, test_suite, test_dict):
+def execute_type(driver, store, test_project, test_suite, test_dict):
     logger.debug("TYPE:", test_dict)
     element = _wait_element(driver, test_dict['target'])
 
@@ -96,12 +97,12 @@ def execute_type(driver, test_project, test_suite, test_dict):
     ActionChains(driver).send_keys_to_element(element, test_dict['value']).perform()
 
 
-def execute_pause(driver, test_project, test_suite, test_dict):
+def execute_pause(driver, store, test_project, test_suite, test_dict):
     logger.debug("PAUSE:", test_dict['target'], "[ms]")
     time.sleep(float(test_dict['target']) / 1000)
 
 
-def execute_mouse_over(driver, test_project, test_suite, test_dict):
+def execute_mouse_over(driver, store, test_project, test_suite, test_dict):
     element = _wait_element(driver, test_dict['target'])
     ActionChains(driver).move_to_element(element).perform()
 
@@ -112,12 +113,12 @@ def _select_by_selector(select, selector):
         return select.select_by_visible_text(text)
 
 
-def execute_select(driver, test_project, test_suite, test_dict):
+def execute_select(driver, store, test_project, test_suite, test_dict):
     element = _wait_element(driver, test_dict['target'])
     _select_by_selector(Select(element), test_dict['value'])
 
 
-def execute_assert_confirmation(driver, test_project, test_suite, test_dict):
+def execute_assert_confirmation(driver, store, test_project, test_suite, test_dict):
     expect = test_dict['target']
     elapsed_seconds = 0
 
@@ -138,11 +139,11 @@ def execute_assert_confirmation(driver, test_project, test_suite, test_dict):
                 continue
 
 
-def execute_webdriver_choose_ok_on_visible_confirmation(driver, test_project, test_suite, test_dict):
+def execute_webdriver_choose_ok_on_visible_confirmation(driver, store, test_project, test_suite, test_dict):
     Alert(driver).accept()
 
 
-def execute_assert_text(driver, test_project, test_suite, test_dict):
+def execute_assert_text(driver, store, test_project, test_suite, test_dict):
     element = _wait_element(driver, test_dict['target'])
     expect = test_dict['value']
     actual = element.text
@@ -151,9 +152,44 @@ def execute_assert_text(driver, test_project, test_suite, test_dict):
         raise Exception('execute_assert_text: expected {}, actual {}'.format(expect, actual))
 
 
-def execute_verify_text(driver, test_project, test_suite, test_dict):
+def execute_verify_text(driver, store, test_project, test_suite, test_dict):
     element = _wait_element(driver, test_dict['target'])
     logger.info('VERIFY TEXT: expected {}, actual {}'.format(test_dict['value'], element.text))
+
+
+def execute_assert(driver, store, test_project, test_suite, test_dict):
+    expect = test_dict['value']
+    actual = store.get(test_dict['target'])
+    logger.info('ASSERT: expected {}, actual {}'.format(expect, actual))
+    if expect != actual:
+        raise Exception('execute_assert: expected {}, actual {}'.format(expect, actual))
+
+
+def execute_verify(driver, store, test_project, test_suite, test_dict):
+    expect = test_dict['value']
+    actual = store.get(test_dict['target'])
+    logger.info('VERIFY: expected {}, actual {}'.format(expect, actual))
+
+
+def execute_store(driver, store, test_project, test_suite, test_dict):
+    store[test_dict['value']] = test_dict['target']
+
+
+def execute_store_text(driver, store, test_project, test_suite, test_dict):
+    element = _wait_element(driver, test_dict['target'])
+    store[test_dict['value']] = element.text
+
+
+def execute_store_attribute(driver, store, test_project, test_suite, test_dict):
+    locator, attribute = test_dict['target'].rsplit('@', 1)
+    element = _wait_element(driver, locator)
+    store[test_dict['value']] = element.get_attribute(attribute)
+
+
+def execute_store_value(driver, store, test_project, test_suite, test_dict):
+    # NOTE: This works for any input type element
+    element = _wait_element(driver, test_dict['target'])
+    store[test_dict['value']] = element.get_attribute('value')
 
 
 TEST_HANDLER_MAP = {
@@ -169,11 +205,17 @@ TEST_HANDLER_MAP = {
     'verifyText': execute_verify_text,
     'mouseOver': execute_mouse_over,
     'select': execute_select,
-    'mouseDownAt': lambda _1, _2, _3, _4: None,
-    'mouseUpAt': lambda _1, _2, _3, _4: None,
-    'mouseMoveAt': lambda _1, _2, _3, _4: None,
-    'chooseOkOnNextConfirmation': lambda _1, _2, _3, _4: None,
-    'chooseCancelOnNextConfirmation': lambda _1, _2, _3, _4: None,
+    'mouseDownAt': lambda _1, _2, _3, _4, _5: None,
+    'mouseUpAt': lambda _1, _2, _3, _4, _5: None,
+    'mouseMoveAt': lambda _1, _2, _3, _4, _5: None,
+    'chooseOkOnNextConfirmation': lambda _1, _2, _3, _4, _5: None,
+    'chooseCancelOnNextConfirmation': lambda _1, _2, _3, _4, _5: None,
     'assertConfirmation': execute_assert_confirmation,
     'webdriverChooseOkOnVisibleConfirmation': execute_webdriver_choose_ok_on_visible_confirmation,
+    'assert': execute_assert,
+    'verify': execute_verify,
+    'store': execute_store,
+    'storeText': execute_store_text,
+    'storeAttribute': execute_store_attribute,
+    'storeValue': execute_store_value,
 }

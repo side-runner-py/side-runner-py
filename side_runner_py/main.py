@@ -18,12 +18,8 @@ from .side import SIDEProjectManager
 from .hook import run_hook_per_project, run_hook_per_suite, run_hook_per_test
 from .variable import VariableStore
 
-import logging
-from logging import basicConfig, getLogger
-Config.init(suppress_logging=True)
+from .log import getLogger
 logger = getLogger(__name__)
-log_level = getattr(logging, Config.LOG_LEVEL)
-basicConfig(level=log_level)
 
 
 def get_screenshot(driver, test_suite_name, test_case_name, cmd_index, test_dict, outdir):

@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoAlertPresentException
-from logging import getLogger
+from .log import getLogger
 logger = getLogger(__name__)
 
 

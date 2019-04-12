@@ -32,7 +32,7 @@ class SIDEProjectManager:
         test_project = self.projects[project_id]
 
         # deepcopy tests
-        tests = deepcopy(test_project['tests'])
+        tests = deepcopy(self.tests)
         test_suites = deepcopy(test_project['test_suites'])
 
         # expand parameters if param file exists
@@ -40,11 +40,7 @@ class SIDEProjectManager:
             self._attach_params(test_project['param_filename'], tests)
             test_suites, tests = self._expand_test_project_with_params(test_suites, tests)
 
-        # extend manager's tests and parameter expanded tests
-        all_tests = deepcopy(self.tests)
-        all_tests.update(tests)
-
-        return test_project['project'], test_suites, all_tests
+        return test_project['project'], test_suites, tests
 
     def _parse_side(self, filename):
         # parse json

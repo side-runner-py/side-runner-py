@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name='side_runner_py',
-    version='0.0.1',
+    version='0.0.3',
     author='',
     author_email='',
     maintainer='',

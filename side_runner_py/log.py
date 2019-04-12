@@ -9,12 +9,12 @@ basicConfig(level=INFO, format=FORMAT, datefmt=DATE_FORMAT, style='{')
 
 
 class JoinFormatter:
-    def format(recode):
-        items = [recode.msg]
-        items.extend(recode.args)
-        recode.__dict__['message'] = ' '.join([str(item) for item in items])
-        recode.__dict__['asctime'] = strftime(DATE_FORMAT, gmtime(recode.created))
-        return FORMAT.format(**recode.__dict__)
+    def format(record):
+        items = [record.msg]
+        items.extend(record.args)
+        record.__dict__['message'] = ' '.join([str(item) for item in items])
+        record.__dict__['asctime'] = strftime(DATE_FORMAT, gmtime(record.created))
+        return FORMAT.format(**record.__dict__)
 
 
 def getLogger(name):

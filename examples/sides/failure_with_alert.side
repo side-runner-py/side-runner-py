@@ -1,0 +1,54 @@
+{
+  "id": "24ebca84-df70-4229-99f5-d239597ab80e",
+  "version": "2.0",
+  "name": "Failure with alert testing",
+  "url": "https://www.seleniumeasy.com",
+  "tests": [{
+    "id": "539340a5-44a6-4367-8c25-24a64241a569",
+    "name": "Click when alert is popping up",
+    "commands": [{
+      "id": "323c2a29-4048-4f72-8527-949a0039403e",
+      "comment": "",
+      "command": "open",
+      "target": "/test/javascript-alert-box-demo.html",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "6365f6cf-38bd-48f5-970a-1aa034448f29",
+      "comment": "",
+      "command": "click",
+      "target": "css=.panel:nth-child(4) .btn",
+      "targets": [
+        ["css=.panel:nth-child(4) .btn", "css:finder"],
+        ["xpath=//button[@onclick='myAlertFunction()']", "xpath:attributes"],
+        ["xpath=//div[@id='easycont']/div/div[2]/div/div[2]/button", "xpath:idRelative"],
+        ["xpath=//div[2]/button", "xpath:position"],
+        ["xpath=//button[contains(.,'Click me!')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "c18ed809-58a7-4b0c-b299-249a72482b9c",
+      "comment": "expect failure",
+      "command": "click",
+      "target": "css=.panel:nth-child(4) .btn",
+      "targets": [
+        ["css=.panel:nth-child(4) .btn", "css:finder"],
+        ["xpath=//button[@onclick='myAlertFunction()']", "xpath:attributes"],
+        ["xpath=//div[@id='easycont']/div/div[2]/div/div[2]/button", "xpath:idRelative"],
+        ["xpath=//div[2]/button", "xpath:position"],
+        ["xpath=//button[contains(.,'Click me!')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }]
+  }],
+  "suites": [{
+    "id": "b5c90aeb-8f2c-4407-859d-2040c16bd27a",
+    "name": "Failure with alert Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["539340a5-44a6-4367-8c25-24a64241a569"]
+  }],
+  "urls": ["https://www.seleniumeasy.com/"],
+  "plugins": []
+}

@@ -6,6 +6,10 @@ import traceback
 import datetime
 import contextlib
 from pathlib import Path
+
+from selenium.webdriver.common.alert import Alert
+from selenium.common.exceptions import UnexpectedAlertPresentException
+
 from .commands import TEST_HANDLER_MAP
 from .utils import with_retry
 from .init import initialize
@@ -23,8 +27,6 @@ basicConfig(level=log_level)
 
 
 def get_screenshot(driver, test_suite_name, test_case_name, cmd_index, test_dict, outdir):
-    from selenium.common.exceptions import UnexpectedAlertPresentException
-
     try:
         filename = "_".join([test_suite_name, test_case_name, "{0:02d}".format(cmd_index), test_dict['id']]) + ".png"
         driver.get_screenshot_as_file(os.path.join(outdir, filename))
@@ -107,10 +109,20 @@ class SessionManager():
         self.driver = None
         self.variable_store = VariableStore()
 
+    def _close_driver_gracefully(self):
+        try:
+            self.driver.close()
+        except UnexpectedAlertPresentException:
+            Alert(self.driver).accept()
+            self.driver.close()
+        except Exception:
+            logger.warning('Unable to close driver')
+            logger.warning(traceback.format_exc())
+
     def _close_driver_or_skip(self):
         logger.info('Close session {}'.format(self.driver))
         if self.driver is not None:
-            self.driver.close()
+            self._close_driver_gracefully()
             self.driver = None
 
     def _reset_variable_store(self):

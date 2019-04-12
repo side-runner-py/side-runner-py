@@ -143,7 +143,7 @@ class SessionManager():
                 yield idx, test
 
         # prepare webdriver
-        logger.info('Using session {}'.format(self.driver))
+        logger.debug('Using session {}'.format(self.driver))
         if self.driver is None:
             self.driver = with_retry(Config.DRIVER_RETRY_COUNT, Config.DRIVER_RETRY_WAIT,
                                      initialize, Config.WEBDRIVER_URL)
@@ -170,7 +170,7 @@ class SessionManager():
 
 
 def _execute_test_command(driver, variable_store, test_project, test_suite, tests, idx, test, output, outdir):
-    logger.info('Using session {}'.format(driver))
+    logger.debug('Using session {}'.format(driver))
 
     # log test-command
     test_path_str = '{}.{}.{}.{}'.format(test_suite['name'], tests['name'], idx, test['command'])

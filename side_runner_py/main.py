@@ -221,17 +221,17 @@ def main():
 
     # pre-load all tests
     side_manager = SIDEProjectManager()
-    loaded_project_ids = [
-        side_manager.add_project(side_filename, param_filename)
+    loaded_projects = [
+        (side_manager.add_project(side_filename, param_filename), side_filename, param_filename)
         for side_filename, param_filename in _get_side_file_list_by_glob(Config.TEST_FILE)
     ]
 
     # execute test projects
     session_manager = SessionManager()
-    for project_id in loaded_project_ids:
-        logger.debug('Enter test-project {}'.format(project_id))
+    for (project_id, side_filename, param_filename) in loaded_projects:
+        logger.info('Enter test-project {} ({} {})'.format(project_id, side_filename, param_filename))
         _execute_side_file(session_manager, side_manager, project_id)
-        logger.debug('Leave test-project {}'.format(project_id))
+        logger.info('Leave test-project {} ({} {})'.format(project_id, side_filename, param_filename))
 
 
 if __name__ == '__main__':

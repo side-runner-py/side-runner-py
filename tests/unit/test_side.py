@@ -138,6 +138,60 @@ class TestSIDEProjectManager:
         assert tests_a == {'foobar_a': {'id': 'foobar_a'}}
         assert tests_b == {'foobar_a': {'id': 'foobar_a'}, 'foobar_b': {'id': 'foobar_b'}}
 
+    def test_parameterize_with_shared(self, mocker, tmp_path):
+        # prepare side and params files
+        sidefile_shared = tmp_path / "shared.side"
+        orig_test_project_shared = {
+            'id': 'shared',
+            'suites': [],
+            'tests': [{'id': 'shared', 'name': 'shared'}],
+        }
+        sidefile_shared.write_text(json.dumps(orig_test_project_shared))
+
+        sidefile_client = tmp_path / "client.side"
+        orig_test_project_client = {
+            'id': 'foo',
+            'suites': [{'id': 'foo', 'name': 'foo', 'tests': ['shared']}],
+            'tests': [],
+        }
+        sidefile_client.write_text(json.dumps(orig_test_project_client))
+
+        paramsfile_client = tmp_path / "client_params.json"
+        params = [
+            {
+                "test_name": "shared",
+                "params_type": "list",
+                "params": [
+                    {"message": "Foo"},
+                    {"message": "Bar"}
+                ]
+            },
+        ]
+        paramsfile_client.write_text(json.dumps(params))
+
+        # add projects
+        side_manager = SIDEProjectManager()
+        side_manager.add_project(str(sidefile_shared), None)
+        project_id_client = side_manager.add_project(str(sidefile_client), str(paramsfile_client))
+
+        # parameterize
+        mocker.patch('side_runner_py.side.open')
+        mocker.patch('side_runner_py.side._try_to_load').return_value = params
+        _, test_suites_client, _ = side_manager.get_project(project_id_client)
+
+        assert test_suites_client == [
+            {
+                'id': 'foo-0',
+                'name': 'foo-0',
+                'tests': ['shared-0']
+            },
+            {
+                'id': 'foo-1',
+                'name': 'foo-1',
+                'tests': ['shared-1']
+            },
+        ]
+
     def test_parse_yaml_side_file(self, tmp_path):
         sidefile = tmp_path / "yaml.side"
         orig_test_project = {'suites': [], 'tests': [], 'id': 'foobar'}

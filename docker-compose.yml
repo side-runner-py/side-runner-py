@@ -8,6 +8,7 @@ services:
         --output-dir /out
         --hook-scripts-dir /src/hooks
         --driver-retry-count 10
+        --log-level DEBUG
     volumes:
       - "~/out:/out"
   webdriver:

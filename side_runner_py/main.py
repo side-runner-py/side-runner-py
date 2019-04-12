@@ -14,9 +14,12 @@ from .side import SIDEProjectManager
 from .hook import run_hook_per_project, run_hook_per_suite, run_hook_per_test
 from .variable import VariableStore
 
-from logging import basicConfig, INFO, getLogger
+import logging
+from logging import basicConfig, getLogger
+Config.init(suppress_logging=True)
 logger = getLogger(__name__)
-basicConfig(level=INFO)
+log_level = getattr(logging, Config.LOG_LEVEL)
+basicConfig(level=log_level)
 
 
 def get_screenshot(driver, test_suite_name, test_case_name, cmd_index, test_dict, outdir):
@@ -140,7 +143,7 @@ class SessionManager():
                 yield idx, test
 
         # prepare webdriver
-        logger.info('Using session {}'.format(self.driver))
+        logger.debug('Using session {}'.format(self.driver))
         if self.driver is None:
             self.driver = with_retry(Config.DRIVER_RETRY_COUNT, Config.DRIVER_RETRY_WAIT,
                                      initialize, Config.WEBDRIVER_URL)
@@ -167,7 +170,7 @@ class SessionManager():
 
 
 def _execute_test_command(driver, variable_store, test_project, test_suite, tests, idx, test, output, outdir):
-    logger.info('Using session {}'.format(driver))
+    logger.debug('Using session {}'.format(driver))
 
     # log test-command
     test_path_str = '{}.{}.{}.{}'.format(test_suite['name'], tests['name'], idx, test['command'])
@@ -218,17 +221,17 @@ def main():
 
     # pre-load all tests
     side_manager = SIDEProjectManager()
-    loaded_project_ids = [
-        side_manager.add_project(side_filename, param_filename)
+    loaded_projects = [
+        (side_manager.add_project(side_filename, param_filename), side_filename, param_filename)
         for side_filename, param_filename in _get_side_file_list_by_glob(Config.TEST_FILE)
     ]
 
     # execute test projects
     session_manager = SessionManager()
-    for project_id in loaded_project_ids:
-        logger.debug('Enter test-project {}'.format(project_id))
+    for (project_id, side_filename, param_filename) in loaded_projects:
+        logger.info('Enter test-project {} ({} {})'.format(project_id, side_filename, param_filename))
         _execute_side_file(session_manager, side_manager, project_id)
-        logger.debug('Leave test-project {}'.format(project_id))
+        logger.info('Leave test-project {} ({} {})'.format(project_id, side_filename, param_filename))
 
 
 if __name__ == '__main__':

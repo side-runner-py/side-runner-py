@@ -22,3 +22,4 @@ side-runner-py -h
 | --driver-element-wait | SIDE_DRIVER_ELEMENT_WAIT  | 10 [sec]                       | Maximum wait time of element selection            |
 | --driver-command-wait | SIDE_DRIVER_COMMAND_WAIT  | 0 [ms]                         | Wait time between test commands                   |
 | --hook-scripts-dir    | SIDE_HOOK_SCRIPTS_DIR     | 'hooks'                        | Pre hook python script directory                  |
+| --log-level           | SIDE_LOG_LEVEL            | 'INFO'                         | Log level of 'logging' library                    |

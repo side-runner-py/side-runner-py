@@ -47,6 +47,8 @@ items:
     type: int
   hook-scripts-dir:
     default: hooks
+  log-level:
+    default: INFO
 '''
 
 CONFIG_DEF = yaml.safe_load(CONFIG_YAML)
@@ -54,9 +56,10 @@ CONFIG_DEF = yaml.safe_load(CONFIG_YAML)
 
 class Config:
     @staticmethod
-    def init():
+    def init(suppress_logging=False):
         parser = stingconf.Parser('Execute Selenium IDE (.side) tests', CONFIG_DEF)
         config = parser.parse(sys.argv[1:])
         for k, v in config.items():
             setattr(Config, k, v)
-            logger.info("Config.{}: = {}".format(k, v))
+            if not suppress_logging:
+                logger.info("Config.{}: = {}".format(k, v))

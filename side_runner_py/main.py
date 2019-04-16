@@ -229,10 +229,12 @@ def main():
 
     # pre-load all tests
     side_manager = SIDEProjectManager()
-    loaded_projects = [
-        (side_manager.add_project(side_filename, param_filename), side_filename, param_filename)
-        for side_filename, param_filename in _get_side_file_list_by_glob(Config.TEST_FILE)
-    ]
+    loaded_projects = []
+    for test_file_pattern in Config.TEST_FILE:
+        loaded_projects.extend([
+            (side_manager.add_project(side_filename, param_filename), side_filename, param_filename)
+            for side_filename, param_filename in _get_side_file_list_by_glob(test_file_pattern)
+        ])
 
     # execute test projects
     session_manager = SessionManager()

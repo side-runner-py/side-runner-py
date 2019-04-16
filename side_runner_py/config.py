@@ -15,7 +15,8 @@ items:
   webdriver-url:
     default: http://webdriver:4444/wd/hub
   test-file:
-    default: default.side
+    default: [default.side]
+    repeatable: true
   http-proxy:
     default: ''
     env:

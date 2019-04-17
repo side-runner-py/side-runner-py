@@ -21,7 +21,9 @@ def _contains_id_or_name(kind, test_dict, conditions):
 
 
 def load_hook_scripts(hook_script_dir, pattern):
-    for filename in Path(hook_script_dir).glob(pattern):
+    filename_list = list(Path(hook_script_dir).glob(pattern))
+    filename_list.sort()
+    for filename in filename_list:
         if filename.exists():
             loader = SourceFileLoader(str(filename.parent / filename.stem), str(filename))
             yield loader.load_module()

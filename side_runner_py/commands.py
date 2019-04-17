@@ -7,6 +7,7 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoAlertPresentException
+from .exceptions import AssertionFailure, VerificationFailure
 from .log import getLogger
 logger = getLogger(__name__)
 
@@ -128,13 +129,13 @@ def execute_assert_confirmation(driver, store, test_project, test_suite, test_di
             if expect in actual:
                 return True
             else:
-                raise Exception('execute_assert_confirmation: expected {}, actual {}'.format(expect, actual))
+                raise AssertionFailure('execute_assert_confirmation', 'confirmation', expect, actual)
         except NoAlertPresentException:
             # FIXME: make configurable
             time.sleep(1)
             elapsed_seconds += 1
             if elapsed_seconds > Config.DRIVER_ELEMENT_WAIT:
-                raise Exception('execute_assert_confirmation: expected {}, timed out'.format(expect))
+                raise AssertionFailure('execute_assert_confirmation', 'confirmation', expect, '<timed out>')
             else:
                 continue
 
@@ -149,12 +150,16 @@ def execute_assert_text(driver, store, test_project, test_suite, test_dict):
     actual = element.text
     logger.info('ASSERT TEXT: expected {}, actual {}'.format(expect, actual))
     if expect != actual:
-        raise Exception('execute_assert_text: expected {}, actual {}'.format(expect, actual))
+        raise AssertionFailure('execute_assert_text', test_dict['target'], expect, actual)
 
 
 def execute_verify_text(driver, store, test_project, test_suite, test_dict):
+    expect = test_dict['value']
     element = _wait_element(driver, test_dict['target'])
+    actual = element.text
     logger.info('VERIFY TEXT: expected {}, actual {}'.format(test_dict['value'], element.text))
+    if expect != actual:
+        raise VerificationFailure('execute_verify_text', test_dict['target'], expect, actual)
 
 
 def execute_assert(driver, store, test_project, test_suite, test_dict):
@@ -162,13 +167,15 @@ def execute_assert(driver, store, test_project, test_suite, test_dict):
     actual = store.get(test_dict['target'])
     logger.info('ASSERT: expected {}, actual {}'.format(expect, actual))
     if expect != actual:
-        raise Exception('execute_assert: expected {}, actual {}'.format(expect, actual))
+        raise AssertionFailure('execute_assert', test_dict['target'], expect, actual)
 
 
 def execute_verify(driver, store, test_project, test_suite, test_dict):
     expect = test_dict['value']
     actual = store.get(test_dict['target'])
     logger.info('VERIFY: expected {}, actual {}'.format(expect, actual))
+    if expect != actual:
+        raise VerificationFailure('execute_verify', test_dict['target'], expect, actual)
 
 
 def execute_store(driver, store, test_project, test_suite, test_dict):

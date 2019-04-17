@@ -24,7 +24,7 @@ setup(
         'selenium',
         'jinja2',
         'emoji',
-        'stingconf==0.0.2',
+        'stingconf==0.0.3',
     ],
     setup_requires=[
         'pytest-runner'

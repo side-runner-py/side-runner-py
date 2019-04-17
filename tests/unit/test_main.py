@@ -181,3 +181,23 @@ def test_main_multiple_shared(mocker, tmp_path):
     # call main with mocked driver, etc...
     with mock.patch.object(config.sys, 'argv', ['prog_name', '--test-file={}'.format(tmp_path/"*.json")]):
         main.main()
+
+
+def test_main_multiple_test_file_pattern(mocker, tmp_path):
+    mocker.patch('side_runner_py.main._execute_side_file')
+    add_project = mocker.patch('side_runner_py.main.SIDEProjectManager.add_project')
+
+    # parepare mock test file
+    orig_test_project = {'suites': [], 'tests': [], 'id': 'foobar_a'}
+    sidefile_a = tmp_path / "a_foo.json"
+    sidefile_a.write_text(json.dumps(orig_test_project))
+    sidefile_b1 = tmp_path / "b_bar.json"
+    sidefile_b1.write_text(json.dumps(orig_test_project))
+    sidefile_b2 = tmp_path / "b_buz.json"
+    sidefile_b2.write_text(json.dumps(orig_test_project))
+
+    # call main with mocked driver, etc...
+    args = ['prog_name', '--test-file', str(tmp_path/"a_*.json"), str(tmp_path/"b_*.json")]
+    with mock.patch.object(config.sys, 'argv', args):
+        main.main()
+        assert add_project.call_count == 3

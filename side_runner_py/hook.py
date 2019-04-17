@@ -3,6 +3,9 @@ from functools import partial
 from importlib.machinery import SourceFileLoader
 from .config import Config
 
+from .log import getLogger
+logger = getLogger(__name__)
+
 
 def _any_or_match(curr_id_or_name, id_or_name):
     return id_or_name == '*' or id_or_name == curr_id_or_name
@@ -34,7 +37,7 @@ def _run_hook(pre_or_post, kind, match_funcs):
 
         if all([f(conditions) for f in match_funcs]):
             if getattr(hook_module, method_name, None):
-                print('Call {}-{} hookscript {}'. format(pre_or_post, kind, hook_module.__name__))
+                logger.info('Call {}-{} hookscript {}.py'.format(pre_or_post, kind, hook_module.__name__))
                 getattr(hook_module, method_name)()
 
 

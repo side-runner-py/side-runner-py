@@ -17,6 +17,7 @@ from .config import Config
 from .side import SIDEProjectManager
 from .hook import run_hook_per_project, run_hook_per_suite, run_hook_per_test
 from .variable import VariableStore
+from .exceptions import AssertionFailure, VerificationFailure
 
 from .log import getLogger
 logger = getLogger(__name__)
@@ -32,7 +33,7 @@ def get_screenshot(driver, test_suite_name, test_case_name, cmd_index, test_dict
         logger.warning(traceback.format_exc())
 
 
-def _format_test_command_output(test, is_failed, failed_msg):
+def _format_test_command_output(test, is_failed, is_verify_failed, failed_msg, failed_type):
     # generate test result
     return {
         'comment': test.get('comment'),
@@ -40,7 +41,9 @@ def _format_test_command_output(test, is_failed, failed_msg):
         'target': test['target'],
         'value': test['value'],
         'is_failed': is_failed,
-        'failed_msg': failed_msg
+        'is_verify_failed': is_verify_failed,
+        'failed_msg': failed_msg,
+        'failed_type': failed_type,
     }
 
 
@@ -48,11 +51,16 @@ def execute_test_command(driver, variable_store, test_project, test_suite, test_
     try:
         handler_func = TEST_HANDLER_MAP[test_dict['command']]
         handler_func(driver, variable_store, test_project, test_suite, test_dict)
+    except VerificationFailure as exc:
+        return _format_test_command_output(test_dict, False, True, exc.format_msg(), 'verify')
+    except AssertionFailure as exc:
+        logger.warning(exc.format_msg())
+        return _format_test_command_output(test_dict, True, False, exc.format_msg(), 'assert')
     except Exception:
         traceback_msg = traceback.format_exc()
         logger.warning(traceback_msg)
-        return _format_test_command_output(test_dict, True, traceback_msg)
-    return _format_test_command_output(test_dict, False, "")
+        return _format_test_command_output(test_dict, True, False, traceback_msg, 'unknown')
+    return _format_test_command_output(test_dict, False, False, '', '')
 
 
 def _ensure_test_output_by_id(output, some_id, create):
@@ -136,6 +144,8 @@ class SessionManager():
             yield _
             run_hook_per_suite('post', test_project, test_suite)
             logger.debug('Leave test-suite {}'.format(test_suite['id']))
+        except AssertionFailure:
+            pass
         except Exception:
             traceback_msg = traceback.format_exc()
             logger.warning(traceback_msg)
@@ -193,7 +203,10 @@ def _execute_test_command(driver, variable_store, test_project, test_suite, test
 
     if test_command_output['is_failed']:
         get_screenshot(driver, test_suite['name'], tests['name'], idx, test, outdir)
-        raise Exception(test_command_output)
+        if test_command_output['failed_type'] == 'assert':
+            raise AssertionFailure()
+        else:
+            raise Exception(test_command_output)
 
 
 def _execute_side_file(session_manager, side_manager, project_id):

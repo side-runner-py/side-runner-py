@@ -35,6 +35,9 @@ class SIDEProjectManager:
         tests = deepcopy(self.tests)
         test_suites = deepcopy(test_project['test_suites'])
 
+        # resolve test id from test name in suites
+        self._resolve_test_id_from_name(test_suites, tests)
+
         # expand parameters if param file exists
         if test_project['param_filename']:
             self._attach_params(test_project['param_filename'], tests)
@@ -57,6 +60,14 @@ class SIDEProjectManager:
             tests[test['id']] = test
 
         return test_project, test_suites, tests
+
+    def _resolve_test_id_from_name(self, test_suites, tests):
+        for test_suite in test_suites:
+            if 'tests' not in test_suite and 'testNames' in test_suite:
+                test_ids = []
+                for test_name in test_suite['testNames']:
+                    test_ids.append(_get_test_id(tests, test_name))
+                test_suite['tests'] = test_ids
 
     def _attach_params(self, params_filename, tests):
         # parse json

@@ -1,0 +1,25 @@
+{
+  "id": "154f9754-70a3-4490-bdcc-ca2eb65b5f51",
+  "version": "2.0",
+  "name": "Reference the other side file",
+  "url": "https://www.seleniumeasy.com",
+  "tests": [],
+  "suites": [{
+    "id": "4089f59a-d04f-4300-9c71-70afd7ef4853",
+    "name": "Reference by id",
+    "persistSession": true,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["bcbde192-a28d-4c2b-996e-36fb1358a9f9"]
+  }, {
+    "id": "95d9a3b3-e1f0-4659-ac17-ff5e8fe9b1c7",
+    "name": "Reference by name",
+    "persistSession": true,
+    "parallel": false,
+    "timeout": 300,
+    "testNames": ["Radio button"]
+  }],
+  "urls": ["https://www.seleniumeasy.com/"],
+  "plugins": []
+}
+

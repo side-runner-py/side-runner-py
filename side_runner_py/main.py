@@ -33,7 +33,7 @@ def get_screenshot(driver, test_suite_name, test_case_name, cmd_index, test_dict
         logger.warning(traceback.format_exc())
 
 
-def _format_test_command_output(test, is_failed, failed_msg, failed_type):
+def _format_test_command_output(test, is_failed, is_verify_failed, failed_msg, failed_type):
     # generate test result
     return {
         'comment': test.get('comment'),
@@ -41,6 +41,7 @@ def _format_test_command_output(test, is_failed, failed_msg, failed_type):
         'target': test['target'],
         'value': test['value'],
         'is_failed': is_failed,
+        'is_verify_failed': is_verify_failed,
         'failed_msg': failed_msg,
         'failed_type': failed_type,
     }
@@ -51,15 +52,15 @@ def execute_test_command(driver, variable_store, test_project, test_suite, test_
         handler_func = TEST_HANDLER_MAP[test_dict['command']]
         handler_func(driver, variable_store, test_project, test_suite, test_dict)
     except VerificationFailure as exc:
-        return _format_test_command_output(test_dict, False, exc.format_msg(), 'verify')
+        return _format_test_command_output(test_dict, False, True, exc.format_msg(), 'verify')
     except AssertionFailure as exc:
         logger.warning(exc.format_msg())
-        return _format_test_command_output(test_dict, True, exc.format_msg(), 'assert')
+        return _format_test_command_output(test_dict, True, False, exc.format_msg(), 'assert')
     except Exception:
         traceback_msg = traceback.format_exc()
         logger.warning(traceback_msg)
-        return _format_test_command_output(test_dict, True, traceback_msg, 'unknown')
-    return _format_test_command_output(test_dict, False, '', '')
+        return _format_test_command_output(test_dict, True, False, traceback_msg, 'unknown')
+    return _format_test_command_output(test_dict, False, False, '', '')
 
 
 def _ensure_test_output_by_id(output, some_id, create):

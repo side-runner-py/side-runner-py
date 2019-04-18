@@ -4,6 +4,10 @@ from copy import deepcopy
 from itertools import product
 from functools import reduce
 from jinja2 import Environment
+from .exceptions import UnresolvedTestId
+
+from .log import getLogger
+logger = getLogger(__name__)
 
 
 class SIDEProjectManager:
@@ -35,15 +39,20 @@ class SIDEProjectManager:
         tests = deepcopy(self.tests)
         test_suites = deepcopy(test_project['test_suites'])
 
-        # resolve test id from test name in suites
-        self._resolve_test_id_from_name(test_suites, tests)
+        try:
+            # resolve test id from test name in suites
+            self._resolve_test_id_from_name(test_suites, tests)
 
-        # expand parameters if param file exists
-        if test_project['param_filename']:
-            self._attach_params(test_project['param_filename'], tests)
-            test_suites, tests = self._expand_test_project_with_params(test_suites, tests)
+            # expand parameters if param file exists
+            if test_project['param_filename']:
+                self._attach_params(test_project['param_filename'], tests)
+                test_suites, tests = self._expand_test_project_with_params(test_suites, tests)
 
-        return test_project['project'], test_suites, tests
+            return test_project['project'], test_suites, tests
+
+        except UnresolvedTestId as exc:
+            logger.error(exc.msg)
+            return test_project['project'], [], []
 
     def _parse_side(self, filename):
         # parse json
@@ -149,7 +158,11 @@ class SIDEProjectManager:
 
 
 def _get_test_id(tests, test_name):
-    return [test['id'] for test in tests.values() if test['name'] == test_name][0]
+    searched = [test['id'] for test in tests.values() if test['name'] == test_name]
+    if len(searched) == 0:
+        raise UnresolvedTestId('Unable to resolve test id from test name: {}'.format(test_name))
+    else:
+        return searched[0]
 
 
 def _render_param(test, param):

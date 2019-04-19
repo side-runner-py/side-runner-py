@@ -6,7 +6,7 @@ from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import NoAlertPresentException
+from selenium.common.exceptions import NoAlertPresentException, ElementNotVisibleException, NoSuchElementException
 from .exceptions import AssertionFailure, VerificationFailure
 from .log import getLogger
 logger = getLogger(__name__)
@@ -119,6 +119,34 @@ def execute_select(driver, store, test_project, test_suite, test_dict):
     _select_by_selector(Select(element), test_dict['value'])
 
 
+def execute_wait_for_element_present(driver, store, test_project, test_suite, test_dict):
+    selector = _get_element_selector_tuple(test_dict['target'])
+    timeout_ms = int(test_dict['value'])
+    WebDriverWait(driver, timeout_ms / 1000, 1, (NoSuchElementException))\
+        .until(lambda x: x.find_element(*selector))
+
+
+def execute_wait_for_element_visible(driver, store, test_project, test_suite, test_dict):
+    selector = _get_element_selector_tuple(test_dict['target'])
+    timeout_ms = int(test_dict['value'])
+    WebDriverWait(driver, timeout_ms / 1000, 1, (ElementNotVisibleException, NoSuchElementException))\
+        .until(lambda x: x.find_element(*selector).is_displayed())
+
+
+def execute_wait_for_element_not_present(driver, store, test_project, test_suite, test_dict):
+    selector = _get_element_selector_tuple(test_dict['target'])
+    timeout_ms = int(test_dict['value'])
+    WebDriverWait(driver, timeout_ms / 1000, 1, (NoSuchElementException))\
+        .until_not(lambda x: x.find_element(*selector))
+
+
+def execute_wait_for_element_not_visible(driver, store, test_project, test_suite, test_dict):
+    selector = _get_element_selector_tuple(test_dict['target'])
+    timeout_ms = int(test_dict['value'])
+    WebDriverWait(driver, timeout_ms / 1000, 1, (ElementNotVisibleException, NoSuchElementException))\
+        .until_not(lambda x: x.find_element(*selector).is_displayed())
+
+
 def execute_assert_confirmation(driver, store, test_project, test_suite, test_dict):
     expect = test_dict['target']
     elapsed_seconds = 0
@@ -217,6 +245,10 @@ TEST_HANDLER_MAP = {
     'mouseMoveAt': lambda _1, _2, _3, _4, _5: None,
     'chooseOkOnNextConfirmation': lambda _1, _2, _3, _4, _5: None,
     'chooseCancelOnNextConfirmation': lambda _1, _2, _3, _4, _5: None,
+    'waitForElementPresent': execute_wait_for_element_present,
+    'waitForElementVisible': execute_wait_for_element_visible,
+    'waitForElementNotPresent': execute_wait_for_element_not_present,
+    'waitForElementNotVisible': execute_wait_for_element_not_visible,
     'assertConfirmation': execute_assert_confirmation,
     'webdriverChooseOkOnVisibleConfirmation': execute_webdriver_choose_ok_on_visible_confirmation,
     'assert': execute_assert,

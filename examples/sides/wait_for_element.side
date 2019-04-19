@@ -26,7 +26,7 @@
       "command": "waitForElementPresent",
       "target": "id=finish",
       "targets": [],
-      "value": "5000"
+      "value": "10000"
     }]
   }, {
     "id": "9ce7296c-9ce0-4b7a-8f2c-b02f9c88abfd",
@@ -51,7 +51,7 @@
       "command": "waitForElementVisible",
       "target": "id=finish",
       "targets": [],
-      "value": "5000"
+      "value": "10000"
     }]
   }, {
     "id": "38136ce5-7e57-4cd2-9c9a-1de6a6988006",
@@ -76,7 +76,7 @@
       "command": "waitForElementNotVisible",
       "target": "id=loading",
       "targets": [],
-      "value": "5000"
+      "value": "10000"
     }]
   }, {
     "id": "5977899c-d191-4f5a-a7f7-1f1bdd8a2c89",

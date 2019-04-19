@@ -1,7 +1,7 @@
 {
   "id": "7aa6c536-710e-4ed6-a9c2-49c54c6185cc",
   "version": "2.0",
-  "03f4434d-633d-4a58-989d-f743b2d2a83e": "Wait for element",
+  "name": "Wait for element",
   "url": "http://the-internet.herokuapp.com",
   "tests": [{
     "id": "6f97079d-e63e-46da-8068-eab63eaf9490",
@@ -10,7 +10,7 @@
       "id": "a58813f2-e866-4e2f-a3d5-71af3b0c54eb",
       "comment": "",
       "command": "open",
-      "target": "/dynamic_loading/1",
+      "target": "/dynamic_loading/2",
       "targets": [],
       "value": ""
     }, {

@@ -5,5 +5,5 @@ conditions = {
 }
 
 
-def pre_suite_run():
+def pre_test_run():
     pass

@@ -5,5 +5,5 @@ conditions = {
 }
 
 
-def post_suite_run():
+def post_test_run():
     pass

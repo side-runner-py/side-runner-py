@@ -47,3 +47,8 @@ def test_call_with_argname_bind_kw_only():
 
     ret = utils.call_with_argname_bind(_func, {'foo': 0, 'bar': 1})
     assert ret == (tuple(), -1, -1, dict())
+
+
+def test_construct_dict():
+    ret = utils.construct_dict('goog:chromeOptions prefs intl.accept_languages', 'ja_JP')
+    assert ret == {'goog:chromeOptions': {'prefs': {'intl.accept_languages': 'ja_JP'}}}

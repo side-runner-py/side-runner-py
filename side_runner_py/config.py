@@ -34,6 +34,11 @@ items:
       ignorecase: true
   output-dir:
     default: ./output
+  desired-capabilities:
+    default: []
+    repeatable: true
+    arg:
+      short: c
   driver-retry-count:
     default: 5
     type: int

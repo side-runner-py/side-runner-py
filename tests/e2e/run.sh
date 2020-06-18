@@ -1,12 +1,15 @@
 #!/bin/sh
+BROWSER=${1:-chrome}
+COMPOSE="docker-compose -f docker-compose-$BROWSER.yml"
+
 rm -rf ~/out
 mkdir -p ~/out
-docker-compose up -d
-while docker-compose ps | grep _runner_ | grep Up; do
+$COMPOSE up -d
+while $COMPOSE ps | grep _runner_ | grep Up; do
   sleep 1
 done
-docker-compose logs
-docker-compose down
+$COMPOSE logs
+$COMPOSE down
 
 failed=0
 for dir in $(ls ~/out/* -td | tac); do

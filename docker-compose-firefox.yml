@@ -1,0 +1,22 @@
+version: '3'
+services:
+  runner:
+    build: .
+    command: |
+      side-runner-py
+        --test-file /src/examples/sides/*.side
+        --output-dir /out
+        --hook-scripts-dir /src/hooks
+        --desired-capabilities browserName=firefox
+        --driver-retry-count 10
+        --log-level DEBUG
+    volumes:
+      - "~/out:/out"
+  webdriver:
+    image: selenium/standalone-firefox-debug
+    ports:
+    - '5900:5900'
+  webpage:
+    image: nginx:alpine
+    volumes:
+    - "$PWD/tests/e2e/html:/usr/share/nginx/html"

@@ -23,7 +23,7 @@ def call_with_argname_bind(func, args_dict):
         if p.kind == Parameter.POSITIONAL_OR_KEYWORD
     ]
 
-    acceptable_args = {k: v for k, v in args_dict if k in param_names}
+    acceptable_args = {k: v for k, v in args_dict.items() if k in param_names}
     try:
         return func(**acceptable_args)
     except Exception:

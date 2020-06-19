@@ -84,7 +84,7 @@ def _store_test_command_output(output, test_suite, tests, test_command_output):
 
 
 @contextlib.contextmanager
-def _prepare_test_project_execution(test_project):
+def _prepare_test_project_execution(session_manager, test_project):
     # hold test execute time
     now = datetime.datetime.now()
     execute_datetime = now.replace(microsecond=0).isoformat().replace(':', '-').replace('T', '.')
@@ -95,12 +95,12 @@ def _prepare_test_project_execution(test_project):
 
     output = []
     try:
-        run_hook_per_project('pre', test_project)
+        run_hook_per_project('pre', session_manager, test_project)
 
         # execute test
         yield output, outdir
 
-        run_hook_per_project('post', test_project)
+        run_hook_per_project('post', session_manager, test_project)
 
     finally:
         # output test result
@@ -143,9 +143,9 @@ class SessionManager():
 
         try:
             logger.debug('Enter test-suite {}'.format(test_suite['id']))
-            run_hook_per_suite('pre', test_project, test_suite)
+            run_hook_per_suite('pre', self, test_project, test_suite)
             yield _
-            run_hook_per_suite('post', test_project, test_suite)
+            run_hook_per_suite('post', self, test_project, test_suite)
             logger.debug('Leave test-suite {}'.format(test_suite['id']))
         except AssertionFailure:
             pass
@@ -172,9 +172,9 @@ class SessionManager():
 
         try:
             logger.debug('Enter tests {}'.format(test_id))
-            run_hook_per_test('pre', test_project, test_suite, tests[test_id])
+            run_hook_per_test('pre', self, test_project, test_suite, tests[test_id])
             yield _
-            run_hook_per_test('post', test_project, test_suite, tests[test_id])
+            run_hook_per_test('post', self, test_project, test_suite, tests[test_id])
             logger.debug('Leave tests {}'.format(test_id))
         except Exception as exc:
             if not test_suite.get('persistSession', False):
@@ -215,7 +215,7 @@ def _execute_test_command(driver, variable_store, test_project, test_suite, test
 def _execute_side_file(session_manager, side_manager, project_id):
     test_project, test_suites, tests = side_manager.get_project(project_id)
 
-    with _prepare_test_project_execution(test_project) as (output, outdir):
+    with _prepare_test_project_execution(session_manager, test_project) as (output, outdir):
         for test_suite in test_suites:
             with session_manager._test_suite_session(test_project, test_suite) as gen_tests:
                 for test_id in gen_tests():

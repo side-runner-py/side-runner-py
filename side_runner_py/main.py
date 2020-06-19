@@ -8,7 +8,7 @@ import contextlib
 from pathlib import Path
 
 from selenium.webdriver.common.alert import Alert
-from selenium.common.exceptions import UnexpectedAlertPresentException
+from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException
 
 from .commands import TEST_HANDLER_MAP
 from .utils import with_retry
@@ -117,7 +117,10 @@ class SessionManager():
         try:
             self.driver.close()
         except UnexpectedAlertPresentException:
-            Alert(self.driver).accept()
+            try:
+                Alert(self.driver).accept()
+            except NoAlertPresentException:
+                pass
             self.driver.close()
         except Exception:
             logger.warning('Unable to close driver')

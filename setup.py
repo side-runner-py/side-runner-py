@@ -24,6 +24,7 @@ setup(
         'selenium',
         'jinja2',
         'emoji',
+        'dpath',
         'stingconf==0.0.3',
     ],
     setup_requires=[

@@ -29,3 +29,19 @@ def call_with_argname_bind(func, args_dict):
             return func()
     except TypeError as exc:
         logger.warning('Mismatch of hook function args: {}'.format(str(exc)))
+
+
+def maybe_bool(s):
+    if s.lower() == "true":
+        return True
+    if s.lower() == "false":
+        return False
+    return s
+
+
+def construct_dict(key, value):
+    def _(elem):
+        if elem[0] is None:
+            return value
+        return {elem[0]: _(elem[1:])}
+    return _(key.split(" ") + [None])

@@ -64,6 +64,13 @@
       "target": "/test/basic-first-form-demo.html",
       "targets": [],
       "value": ""
+	}, {
+      "id": "1a293969-5905-44ac-aff6-c6036187d1bb",
+	  "comment": "",
+	  "command": "setWindowSize",
+	  "target": "1920x1080",
+	  "targets": [],
+      "value": ""
     }, {
       "id": "b77c4f38-22cb-4e42-bb0a-d44fa97a97fc",
       "comment": "",

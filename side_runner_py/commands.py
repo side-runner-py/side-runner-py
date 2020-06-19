@@ -92,10 +92,16 @@ def execute_type(driver, store, test_project, test_suite, test_dict):
         driver.execute_script(script)
         return
 
-    # element.send_keys(test_dict['value'])
-    # ActionChains(driver).click(element).send_keys_to_element(element, test_dict['value']).perform()
     element.clear()
-    ActionChains(driver).send_keys_to_element(element, test_dict['value']).perform()
+    ActionChains(driver).click(element).send_keys_to_element(element, test_dict['value']).perform()
+
+    # NOTE: NOT worked on GeckoDriver
+    # element.clear()
+    # element.send_keys(test_dict['value'])
+
+    # NOTE: NOT worked on ChromeDriver 83.0.4103.39
+    # element.clear()
+    # ActionChains(driver).send_keys_to_element(element, test_dict['value']).perform()
 
 
 def execute_pause(driver, store, test_project, test_suite, test_dict):

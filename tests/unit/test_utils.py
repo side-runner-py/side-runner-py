@@ -17,6 +17,14 @@ def test_call_with_argname_bind_pos_mismatch():
     assert ret is None
 
 
+def test_call_with_argname_bind_pos_partial_match():
+    def _func(foo):
+        return foo
+
+    ret = utils.call_with_argname_bind(_func, {'foo': 0, 'bar': 1})
+    assert ret == 0
+
+
 def test_call_with_argname_bind_pos_with_default_match():
     def _func(foo=-1, bar=-1):
         return foo, bar
@@ -25,12 +33,12 @@ def test_call_with_argname_bind_pos_with_default_match():
     assert ret == (0, 1)
 
 
-def test_call_with_argname_bind_pos_with_default_mismatch():
+def test_call_with_argname_bind_pos_with_default_partial_match():
     def _func(foo=-1, bar=-1):
         return foo, bar
 
     ret = utils.call_with_argname_bind(_func, {'foo': 0, 'buz': 2})
-    assert ret == (-1, -1)
+    assert ret == (0, -1)
 
 
 def test_call_with_argname_bind_no_arg():

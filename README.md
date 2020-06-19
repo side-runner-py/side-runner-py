@@ -24,3 +24,22 @@ side-runner-py -h
 | --driver-command-wait       | SIDE_DRIVER_COMMAND_WAIT  | 0 [ms]                         | Wait time between test commands                   |
 | --hook-scripts-dir          | SIDE_HOOK_SCRIPTS_DIR     | 'hooks'                        | Pre hook python script directory                  |
 | --log-level                 | SIDE_LOG_LEVEL            | 'INFO'                         | Log level of 'logging' library                    |
+
+## How to use hook
+1. Make a hook directory.
+2. Store hook script files into the hook directory.
+  - the script file name must be `*.py`.
+3. Implement the hook script.
+  - put a module global variable `conditions`.
+    - it's type of `dict`.
+    - it has some filters.
+      - the key name format is `test[_project|_suite|]_[ids|names]`. (e.g. `test_project_ids`,`test_suite_ids`,`test_names`)
+      - the value is a list of id or name.
+      - you can use the all match(`'*'`) instead of id or name but can not use glob pattern.
+  - write some functions.
+    - the function name format is `[pre|post]_test[_project|_suite|]_run`. (e.g. `pre_test_suite_run`,`post_test_run`)
+    - the function may have arguments named `test_project`,`test_suite`,`test`.
+      - they have current test details.
+      - they are just objects in `.side` file.
+      - the other objects are not passed except above.
+4. Specify the hook directory as the argument of `--hook-scripts-dir`.

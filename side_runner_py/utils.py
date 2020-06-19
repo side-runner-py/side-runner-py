@@ -1,4 +1,5 @@
 import time
+from traceback import format_exc
 from inspect import signature, Parameter
 from .log import getLogger
 logger = getLogger(__name__)
@@ -22,13 +23,12 @@ def call_with_argname_bind(func, args_dict):
         if p.kind == Parameter.POSITIONAL_OR_KEYWORD
     ]
 
+    acceptable_args = {k: v for k, v in args_dict if k in param_names}
     try:
-        if len(param_names) == len(args_dict) and all([k in param_names for k in args_dict.keys()]):
-            return func(**args_dict)
-        else:
-            return func()
-    except TypeError as exc:
-        logger.warning('Mismatch of hook function args: {}'.format(str(exc)))
+        return func(**acceptable_args)
+    except Exception:
+        logger.error("Failed to run hook ({} {})".format(func.__module__, func.__name__))
+        logger.error(format_exc())
 
 
 def maybe_bool(s):

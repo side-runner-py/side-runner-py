@@ -1,3 +1,5 @@
+import sys
+
 conditions = {
     'test_project_ids': ['*'],
     'test_suite_ids': ['*'],
@@ -14,8 +16,8 @@ def _log(pre_post, session_manager, test, test_command, test_command_index):
             "command": test_command["command"],
             "command_index": test_command_index,
         }
-        print("{}_command_hook: {}".format(pre_post, msg_dict), f)
-        print("{}_command_hook: {}".format(pre_post, msg_dict))
+        for out in [f, sys.stdout]:
+            print("{}_command_hook: {}".format(pre_post, msg_dict), file=out, flush=True)
 
 
 def pre_command_run(session_manager, test, test_command, test_command_index):

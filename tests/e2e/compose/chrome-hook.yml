@@ -1,0 +1,18 @@
+version: '3'
+services:
+  runner:
+    build: ../../../
+    command: |
+      side-runner-py
+        --test-file /src/examples/sides/basic.side
+        --output-dir /out
+        --hook-scripts-dir /src/tests/e2e/hooks/logging
+        --driver-retry-count 10
+        --log-level DEBUG
+    volumes:
+      - "~/out:/out"
+      - "~/hook-logs:/hook-logs"
+  webdriver:
+    image: selenium/standalone-chrome-debug
+    ports:
+    - '5900:5900'

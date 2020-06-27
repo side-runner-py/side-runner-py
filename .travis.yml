@@ -10,6 +10,7 @@ install:
 script:
   - coverage run setup.py test
   - tests/e2e/run.sh tests/e2e/compose/chrome.yml
+  - tests/e2e/run.sh tests/e2e/compose/chrome-hook.yml
   - tests/e2e/run.sh tests/e2e/compose/firefox.yml
 after_success:
   - codecov

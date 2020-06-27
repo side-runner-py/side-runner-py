@@ -1,6 +1,6 @@
 #!/bin/sh
-BROWSER=${1:-chrome}
-COMPOSE="docker-compose -f docker-compose-$BROWSER.yml"
+COMPOSE_FILE=$1
+COMPOSE="docker-compose -f $COMPOSE_FILE"
 
 rm -rf ~/out
 mkdir -p ~/out

@@ -9,7 +9,7 @@ install:
   - pip install codecov
 script:
   - coverage run setup.py test
-  - tests/e2e/run.sh chrome
-  - tests/e2e/run.sh firefox
+  - tests/e2e/run.sh tests/e2e/compose/chrome.yml
+  - tests/e2e/run.sh tests/e2e/compose/firefox.yml
 after_success:
   - codecov

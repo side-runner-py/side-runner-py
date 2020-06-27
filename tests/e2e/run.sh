@@ -5,10 +5,12 @@ COMPOSE="docker-compose -f $COMPOSE_FILE"
 rm -rf ~/out
 mkdir -p ~/out
 $COMPOSE up -d
-while $COMPOSE ps | grep _runner_ | grep Up; do
+$COMPOSE logs -f &
+logs_pid=$!
+while $COMPOSE ps | grep _runner_ | grep -q Up; do
   sleep 1
 done
-$COMPOSE logs
+kill $logs_pid
 $COMPOSE down
 
 failed=0

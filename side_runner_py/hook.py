@@ -21,6 +21,17 @@ def _contains_id_or_name(kind, test_dict, conditions):
         any(filter(partial(_any_or_match, name), conditions.get(kind + '_names', [])))
 
 
+def _contains_id_or_command_or_index(kind, test_dict, index, conditions):
+    id = test_dict.get('id', '')
+    command = test_dict.get('command', '')
+
+    return \
+        any(filter(partial(_any_or_match, id), conditions.get(kind + '_ids', []))) or \
+        any(filter(partial(_any_or_match, command), conditions.get(kind + '_types', []))) or \
+        any(filter(partial(_any_or_match, command), conditions.get(kind + '_commands', []))) or \
+        any(filter(partial(_any_or_match, index), conditions.get(kind + '_indexes', [])))
+
+
 def load_hook_scripts(hook_script_dir, pattern):
     filename_list = list(Path(hook_script_dir).glob(pattern))
     filename_list.sort()
@@ -83,5 +94,25 @@ def run_hook_per_test(pre_or_post, session_manager, test_project, test_suite, te
         'test_project': test_project,
         'test_suite': test_suite,
         'test': test,
+    }
+    _run_hook(pre_or_post, kind, match_funcs, current_test_dict)
+
+
+def run_hook_per_command(pre_or_post, session_manager,
+                         test_project, test_suite, test, test_command, test_command_index):
+    kind = 'command'
+    match_funcs = [
+        partial(_contains_id_or_name, 'test_project', test_project),
+        partial(_contains_id_or_name, 'test_suite', test_suite),
+        partial(_contains_id_or_name, 'test', test),
+        partial(_contains_id_or_command_or_index, 'test_command', test_command, test_command_index),
+    ]
+    current_test_dict = {
+        'session_manager': session_manager,
+        'test_project': test_project,
+        'test_suite': test_suite,
+        'test': test,
+        'test_command': test_command,
+        'test_command_index': test_command_index,
     }
     _run_hook(pre_or_post, kind, match_funcs, current_test_dict)

@@ -15,7 +15,7 @@ from .utils import with_retry
 from .init import initialize
 from .config import Config
 from .side import SIDEProjectManager
-from .hook import run_hook_per_project, run_hook_per_suite, run_hook_per_test
+from .hook import run_hook_per_project, run_hook_per_suite, run_hook_per_test, run_hook_per_command
 from .variable import VariableStore
 from .exceptions import AssertionFailure, VerificationFailure
 
@@ -47,10 +47,10 @@ def _format_test_command_output(test, is_failed, is_verify_failed, failed_msg, f
     }
 
 
-def execute_test_command(driver, variable_store, test_project, test_suite, test_dict):
+def execute_test_command(session_manager, test_project, test_suite, test_dict):
     try:
         handler_func = TEST_HANDLER_MAP[test_dict['command']]
-        handler_func(driver, variable_store, test_project, test_suite, test_dict)
+        handler_func(session_manager.driver, session_manager.variable_store, test_project, test_suite, test_dict)
     except VerificationFailure as exc:
         return _format_test_command_output(test_dict, False, True, exc.format_msg(), 'verify')
     except AssertionFailure as exc:
@@ -190,26 +190,28 @@ class SessionManager():
             self._close_driver_or_skip()
 
 
-def _execute_test_command(driver, variable_store, test_project, test_suite, tests, idx, test, output, outdir):
-    logger.debug('Using session {}'.format(driver))
+def _execute_test_command(session_manager, test_project, test_suite, tests, idx, test, output, outdir):
+    logger.debug('Using session {}'.format(session_manager.driver))
 
     # log test-command
     test_path_str = '{}.{}.{}.{}'.format(test_suite['name'], tests['name'], idx, test['command'])
     logger.info('TEST: {} to {} with {}'.format(test_path_str, test['target'], test['value']))
 
-    get_screenshot(driver, test_suite['name'], tests['name'], idx, test, outdir)
+    get_screenshot(session_manager.driver, test_suite['name'], tests['name'], idx, test, outdir)
 
     # execute test command
-    test_command_output = execute_test_command(driver, variable_store, test_project, test_suite, test)
-    _store_test_command_output(output, test_suite, tests, test_command_output)
+    run_hook_per_command('pre', session_manager, test_project, test_suite, tests, test, idx)
+    command_output = execute_test_command(session_manager, test_project, test_suite, test)
+    _store_test_command_output(output, test_suite, tests, command_output)
     time.sleep(float(Config.DRIVER_COMMAND_WAIT) / 1000)
+    run_hook_per_command('post', session_manager, test_project, test_suite, tests, test, idx)
 
-    if test_command_output['is_failed']:
-        get_screenshot(driver, test_suite['name'], tests['name'], idx, test, outdir)
-        if test_command_output['failed_type'] == 'assert':
+    if command_output['is_failed']:
+        get_screenshot(session_manager.driver, test_suite['name'], tests['name'], idx, test, outdir)
+        if command_output['failed_type'] == 'assert':
             raise AssertionFailure()
         else:
-            raise Exception(test_command_output)
+            raise Exception(command_output)
 
 
 def _execute_side_file(session_manager, side_manager, project_id):
@@ -221,7 +223,7 @@ def _execute_side_file(session_manager, side_manager, project_id):
                 for test_id in gen_tests():
                     with session_manager._tests_session(test_project, test_suite, tests, test_id) as gen_test_command:
                         for idx, test in gen_test_command():
-                            _execute_test_command(session_manager.driver, session_manager.variable_store,
+                            _execute_test_command(session_manager,
                                                   test_project, test_suite, tests[test_id], idx, test, output, outdir)
 
 

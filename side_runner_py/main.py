@@ -190,24 +190,24 @@ class SessionManager():
             self._close_driver_or_skip()
 
 
-def _execute_test_command(session_manager, test_project, test_suite, tests, idx, test, output, outdir):
+def _execute_test_command(session_manager, test_project, test_suite, test, idx, test_command, output, outdir):
     logger.debug('Using session {}'.format(session_manager.driver))
 
     # log test-command
-    test_path_str = '{}.{}.{}.{}'.format(test_suite['name'], tests['name'], idx, test['command'])
-    logger.info('TEST: {} to {} with {}'.format(test_path_str, test['target'], test['value']))
+    test_path_str = '{}.{}.{}.{}'.format(test_suite['name'], test['name'], idx, test_command['command'])
+    logger.info('TEST: {} to {} with {}'.format(test_path_str, test_command['target'], test_command['value']))
 
-    get_screenshot(session_manager.driver, test_suite['name'], tests['name'], idx, test, outdir)
+    get_screenshot(session_manager.driver, test_suite['name'], test['name'], idx, test_command, outdir)
 
     # execute test command
-    run_hook_per_command('pre', session_manager, test_project, test_suite, tests, test, idx)
-    command_output = execute_test_command(session_manager, test_project, test_suite, test)
-    _store_test_command_output(output, test_suite, tests, command_output)
+    run_hook_per_command('pre', session_manager, test_project, test_suite, test, test_command, idx)
+    command_output = execute_test_command(session_manager, test_project, test_suite, test_command)
+    _store_test_command_output(output, test_suite, test, command_output)
     time.sleep(float(Config.DRIVER_COMMAND_WAIT) / 1000)
-    run_hook_per_command('post', session_manager, test_project, test_suite, tests, test, idx)
+    run_hook_per_command('post', session_manager, test_project, test_suite, test, test_command, idx)
 
     if command_output['is_failed']:
-        get_screenshot(session_manager.driver, test_suite['name'], tests['name'], idx, test, outdir)
+        get_screenshot(session_manager.driver, test_suite['name'], test['name'], idx, test_command, outdir)
         if command_output['failed_type'] == 'assert':
             raise AssertionFailure()
         else:
@@ -222,9 +222,10 @@ def _execute_side_file(session_manager, side_manager, project_id):
             with session_manager._test_suite_session(test_project, test_suite) as gen_tests:
                 for test_id in gen_tests():
                     with session_manager._tests_session(test_project, test_suite, tests, test_id) as gen_test_command:
-                        for idx, test in gen_test_command():
+                        for idx, test_command in gen_test_command():
                             _execute_test_command(session_manager,
-                                                  test_project, test_suite, tests[test_id], idx, test, output, outdir)
+                                                  test_project, test_suite, tests[test_id],
+                                                  idx, test_command, output, outdir)
 
 
 def _get_side_file_list_by_glob(pattern):

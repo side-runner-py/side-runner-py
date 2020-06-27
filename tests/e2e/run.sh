@@ -12,10 +12,3 @@ while $COMPOSE ps | grep _runner_ | grep -q Up; do
 done
 kill $logs_pid
 $COMPOSE down
-
-failed=0
-for dir in $(ls ~/out/* -td | tac); do
-  python tests/e2e/checkresult.py ${dir}/result.json
-  [ $? -ne 0 ] && failed=1
-done
-exit $failed

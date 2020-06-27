@@ -35,11 +35,15 @@ side-runner-py -h
     - it has some filters.
       - the key name format is `test[_project|_suite|]_[ids|names]`. (e.g. `test_project_ids`,`test_suite_ids`,`test_names`)
       - the value is a list of id or name.
+      - or, `test_command_[ids|types|indexes]`. (e.g. `test_command_types`,`test_command_indexes`)
       - you can use the all match(`'*'`) instead of id or name but can not use glob pattern.
   - write some functions.
-    - the function name format is `[pre|post]_test[_project|_suite|]_run`. (e.g. `pre_test_suite_run`,`post_test_run`)
-    - the function may have arguments named `test_project`,`test_suite`,`test`.
+    - the function name format is `[pre|post]_[project|suite|test|command]_run`. (e.g. `pre_suite_run`,`post_test_run`,`post_command_run`)
+    - the function may have arguments named `test_project`,`test_suite`,`test`,`test_command`.
       - they have current test details.
       - they are just objects in `.side` file.
       - the other objects are not passed except above.
+    - the function may have arguments named `test_command_index`.
+    - the function may have arguments named `session_manager`.
+      - it's has Remove Webdriver named `driver`.
 4. Specify the hook directory as the argument of `--hook-scripts-dir`.

@@ -2,7 +2,7 @@
 COMPOSE_FILE=$1
 COMPOSE="docker-compose -f $COMPOSE_FILE"
 
-rm -rf ~/out
+sudo rm -rf ~/out
 mkdir -p ~/out
 $COMPOSE up -d
 $COMPOSE logs -f runner &

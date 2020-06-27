@@ -5,7 +5,7 @@ COMPOSE="docker-compose -f $COMPOSE_FILE"
 rm -rf ~/out
 mkdir -p ~/out
 $COMPOSE up -d
-$COMPOSE logs -f &
+$COMPOSE logs -f runner &
 logs_pid=$!
 while $COMPOSE ps | grep _runner_ | grep -q Up; do
   sleep 1

@@ -45,3 +45,23 @@ def construct_dict(key, value):
             return value
         return {elem[0]: _(elem[1:])}
     return _(key.split(" ") + [None])
+
+
+def split_with_re(regexp, s, func):
+    ret = []
+    pos = 0
+    match_count = len(regexp.findall(s))
+
+    for m in regexp.finditer(s):
+        if m.start() != pos:
+            ret.append(s[pos:m.start()])
+        ret.append(func(m))
+        pos = m.end()
+
+    if match_count > 0:
+        if m.end() != len(s):
+            ret.append(s[m.end():len(s)])
+    else:
+        ret.append(s)
+
+    return ret

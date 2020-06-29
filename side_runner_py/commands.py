@@ -1,12 +1,15 @@
 import time
+import re
 from .config import Config
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.alert import Alert
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoAlertPresentException, ElementNotVisibleException, NoSuchElementException
+from .utils import split_with_re
 from .exceptions import AssertionFailure, VerificationFailure
 from .log import getLogger
 logger = getLogger(__name__)
@@ -107,6 +110,19 @@ def execute_type(driver, store, test_project, test_suite, test_dict):
 def execute_pause(driver, store, test_project, test_suite, test_dict):
     logger.debug("PAUSE:", test_dict['target'], "[ms]")
     time.sleep(float(test_dict['target']) / 1000)
+
+
+def execute_send_keys(driver, store, test_project, test_suite, test_dict):
+    logger.debug("SEND KEYS:", test_dict)
+    element = _wait_element(driver, test_dict['target'])
+
+    def to_keys(m):
+        return getattr(Keys, m.group(1), m.group(1))
+
+    regexp = re.compile('\\${KEY_([A-Z0-9]+)}')
+    keys = split_with_re(regexp, test_dict['value'], to_keys)
+
+    ActionChains(driver).send_keys_to_element(element, *keys).perform()
 
 
 def execute_mouse_over(driver, store, test_project, test_suite, test_dict):
@@ -242,6 +258,7 @@ TEST_HANDLER_MAP = {
     'doubleClick': execute_double_click,
     'type': execute_type,
     'pause': execute_pause,
+    'sendKeys': execute_send_keys,
     'assertText': execute_assert_text,
     'verifyText': execute_verify_text,
     'mouseOver': execute_mouse_over,

@@ -1,3 +1,5 @@
+import re
+import pytest
 from side_runner_py import utils
 
 
@@ -60,3 +62,18 @@ def test_call_with_argname_bind_kw_only():
 def test_construct_dict():
     ret = utils.construct_dict('goog:chromeOptions prefs intl.accept_languages', 'ja_JP')
     assert ret == {'goog:chromeOptions': {'prefs': {'intl.accept_languages': 'ja_JP'}}}
+
+
+@pytest.mark.parametrize('regexp,s,result', [
+    ('\\${KEY_([A-Z0-9]+)}', 'aaa', ['aaa']),
+    ('\\${KEY_([A-Z0-9]+)}', '${KEY_UP}', ['UP']),
+    ('\\${KEY_([A-Z0-9]+)}', 'a${KEY_UP}b', ['a', 'UP', 'b']),
+    ('\\${KEY_([A-Z0-9]+)}', '${KEY_UP}a${KEY_DOWN}', ['UP', 'a', 'DOWN']),
+    ('\\${KEY_([A-Z0-9]+)}', '${KEY_UP}aaa${KEY_DOWN}${KEY_ENTER}', ['UP', 'aaa', 'DOWN', 'ENTER']),
+])
+def test_split_with_re(regexp, s, result):
+    def _(m):
+        return m.group(1)
+
+    ret = utils.split_with_re(re.compile(regexp), s, _)
+    assert ret == result

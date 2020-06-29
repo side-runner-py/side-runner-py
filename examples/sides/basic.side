@@ -89,6 +89,38 @@
       ],
       "value": "Radio button 'Female' is checked"
     }]
+  }, {
+    "id": "8e87f933-eb3a-4f79-b55d-b05bb4753261",
+    "name": "Send Keys",
+    "commands": [{
+      "id": "e76d96b6-9758-4e6f-a08d-a9b3ffbac578",
+      "comment": "",
+      "command": "open",
+      "target": "/test/basic-first-form-demo.html",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "78856438-6c5d-4ebe-9d1b-3e32f1d346fa",
+      "comment": "",
+      "command": "sendKeys",
+      "target": "id=user-message",
+      "targets": [],
+      "value": "type with send keys"
+    }, {
+      "id": "f00694f9-02d2-4294-811e-dc571456fb05",
+      "comment": "",
+      "command": "sendKeys",
+      "target": "xpath=//form/button",
+      "targets": [],
+      "value": "${KEY_ENTER}"
+    }, {
+      "id": "0a87f451-cf82-4923-af43-1e2cca5c827b",
+      "comment": "",
+      "command": "verifyText",
+      "target": "id=display",
+      "targets": [],
+      "value": "type with send keys"
+    }]
   }],
   "suites": [{
     "id": "8ad9ceea-938f-46d5-b7d9-af0b2832d7ad",
@@ -96,7 +128,10 @@
     "persistSession": true,
     "parallel": false,
     "timeout": 300,
-    "tests": ["bcbde192-a28d-4c2b-996e-36fb1358a9f9"]
+    "tests": [
+      "bcbde192-a28d-4c2b-996e-36fb1358a9f9",
+      "8e87f933-eb3a-4f79-b55d-b05bb4753261"
+    ]
   }],
   "urls": ["https://www.seleniumeasy.com/"],
   "plugins": []

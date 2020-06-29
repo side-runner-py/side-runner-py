@@ -1,3 +1,5 @@
+import sys
+import contextlib
 from pathlib import Path
 from functools import partial
 from importlib.machinery import SourceFileLoader
@@ -116,3 +118,13 @@ def run_hook_per_command(pre_or_post, session_manager,
         'test_command_index': test_command_index,
     }
     _run_hook(pre_or_post, kind, match_funcs, current_test_dict)
+
+
+@contextlib.contextmanager
+def hook_context(kind, *args):
+    hook_func = getattr(sys.modules[__name__], 'run_hook_per_' + kind)
+    hook_func('pre', *args)
+    try:
+        yield
+    finally:
+        hook_func('post', *args)

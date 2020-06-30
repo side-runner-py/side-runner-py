@@ -15,7 +15,7 @@ from .utils import with_retry
 from .init import initialize
 from .config import Config
 from .side import SIDEProjectManager
-from .hook import run_hook_per_project, run_hook_per_suite, run_hook_per_test, run_hook_per_command
+from .hook import hook_context
 from .variable import VariableStore
 from .exceptions import AssertionFailure, VerificationFailure
 
@@ -95,12 +95,9 @@ def _prepare_test_project_execution(session_manager, test_project):
 
     output = []
     try:
-        run_hook_per_project('pre', session_manager, test_project)
-
-        # execute test
-        yield output, outdir
-
-        run_hook_per_project('post', session_manager, test_project)
+        with hook_context('project', session_manager, test_project):
+            # execute test
+            yield output, outdir
 
     finally:
         # output test result
@@ -143,15 +140,15 @@ class SessionManager():
 
         try:
             logger.debug('Enter test-suite {}'.format(test_suite['id']))
-            run_hook_per_suite('pre', self, test_project, test_suite)
-            yield _
-            run_hook_per_suite('post', self, test_project, test_suite)
-            logger.debug('Leave test-suite {}'.format(test_suite['id']))
+            with hook_context('suite', self, test_project, test_suite):
+                yield _
         except AssertionFailure:
             pass
         except Exception:
             traceback_msg = traceback.format_exc()
             logger.warning(traceback_msg)
+        finally:
+            logger.debug('Leave test-suite {}'.format(test_suite['id']))
 
         # reset variable store and close driver on test_suite execution finished
         self._reset_variable_store()
@@ -172,17 +169,16 @@ class SessionManager():
 
         try:
             logger.debug('Enter tests {}'.format(test_id))
-            run_hook_per_test('pre', self, test_project, test_suite, tests[test_id])
-            yield _
-            run_hook_per_test('post', self, test_project, test_suite, tests[test_id])
-            logger.debug('Leave tests {}'.format(test_id))
+            with hook_context('test', self, test_project, test_suite, tests[test_id]):
+                yield _
         except Exception as exc:
             if not test_suite.get('persistSession', False):
                 self._reset_variable_store()
                 self._close_driver_or_skip()
                 return
-
             raise exc
+        finally:
+            logger.debug('Leave tests {}'.format(test_id))
 
         # reset variable store and close driver if test_suite require session close
         if not test_suite.get('persistSession', False):
@@ -200,11 +196,10 @@ def _execute_test_command(session_manager, test_project, test_suite, test, idx, 
     get_screenshot(session_manager.driver, test_suite['name'], test['name'], idx, test_command, outdir)
 
     # execute test command
-    run_hook_per_command('pre', session_manager, test_project, test_suite, test, test_command, idx)
-    command_output = execute_test_command(session_manager, test_project, test_suite, test_command)
-    _store_test_command_output(output, test_suite, test, command_output)
-    time.sleep(float(Config.DRIVER_COMMAND_WAIT) / 1000)
-    run_hook_per_command('post', session_manager, test_project, test_suite, test, test_command, idx)
+    with hook_context('command', session_manager, test_project, test_suite, test, test_command, idx):
+        command_output = execute_test_command(session_manager, test_project, test_suite, test_command)
+        _store_test_command_output(output, test_suite, test, command_output)
+        time.sleep(float(Config.DRIVER_COMMAND_WAIT) / 1000)
 
     if command_output['is_failed']:
         get_screenshot(session_manager.driver, test_suite['name'], test['name'], idx, test_command, outdir)

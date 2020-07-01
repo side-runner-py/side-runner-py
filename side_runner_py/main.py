@@ -1,3 +1,4 @@
+import sys
 import os.path
 import json
 import time
@@ -111,17 +112,27 @@ class SessionManager():
         self.variable_store = VariableStore()
 
     def _close_driver_gracefully(self):
-        try:
-            self.driver.close()
-        except UnexpectedAlertPresentException:
+        if Config.CLOSE_METHOD == 'close':
             try:
-                Alert(self.driver).accept()
-            except NoAlertPresentException:
-                pass
-            self.driver.close()
-        except Exception:
-            logger.warning('Unable to close driver')
-            logger.warning(traceback.format_exc())
+                self.driver.close()
+            except UnexpectedAlertPresentException:
+                try:
+                    Alert(self.driver).accept()
+                except NoAlertPresentException:
+                    pass
+                self.driver.close()
+            except Exception:
+                logger.warning('Unable to close driver')
+                logger.warning(traceback.format_exc())
+        elif Config.CLOSE_METHOD == 'quit':
+            try:
+                self.driver.quit()
+            except Exception:
+                logger.warning('Unable to close driver')
+                logger.warning(traceback.format_exc())
+        else:
+            logger.error('Unknown close method: {}'.format(Config.CLOSE_METHOD))
+            sys.exit(1)
 
     def _close_driver_or_skip(self):
         logger.info('Close session {}'.format(self.driver))

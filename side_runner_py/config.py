@@ -55,6 +55,8 @@ items:
     default: hooks
   log-level:
     default: INFO
+  close-method:
+    default: close
 '''
 
 CONFIG_DEF = yaml.safe_load(CONFIG_YAML)

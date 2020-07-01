@@ -24,6 +24,7 @@ side-runner-py -h
 | --driver-command-wait       | SIDE_DRIVER_COMMAND_WAIT  | 0 [ms]                         | Wait time between test commands                   |
 | --hook-scripts-dir          | SIDE_HOOK_SCRIPTS_DIR     | 'hooks'                        | Pre hook python script directory                  |
 | --log-level                 | SIDE_LOG_LEVEL            | 'INFO'                         | Log level of 'logging' library                    |
+| --close-method              | SIDE_CLOSE_METHOD         | 'close'                        | WebDriver closing method ('close' or 'quit')      |
 
 ## How to use hook
 1. Make a hook directory.

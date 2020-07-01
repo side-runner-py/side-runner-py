@@ -1,0 +1,62 @@
+{
+  "id": "39fd837c-61aa-4f6d-854b-b3572af55a21",
+  "version": "2.0",
+  "name": "Run Script",
+  "url": "https://www.seleniumeasy.com",
+  "tests": [{
+    "id": "828a3541-3909-4c27-ac78-b3d00952b170",
+    "name": "Perform run script",
+    "commands": [{
+      "id": "cf0acad7-e197-4d21-b632-e13079ca1a4a",
+      "comment": "",
+      "command": "open",
+      "target": "/test/basic-first-form-demo.html",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "e45b9b36-72d8-4720-ba01-b370d4c972dc",
+      "comment": "",
+      "command": "runScript",
+      "target": "document.getElementById(\"user-message\").value = \"msg\"",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c8ee30c0-9df6-470d-bcdb-879c3865838d",
+      "comment": "",
+      "command": "click",
+      "target": "css=.btn:nth-child(2)",
+      "targets": [
+        ["css=.btn:nth-child(2)", "css:finder"],
+        ["xpath=(//button[@type='button'])[2]", "xpath:attributes"],
+        ["xpath=//form[@id='get-input']/button", "xpath:idRelative"],
+        ["xpath=//form/button", "xpath:position"],
+        ["xpath=//button[contains(.,'Show Message')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "3449496a-735c-4bc6-8fe3-87f11d44278d",
+      "comment": "",
+      "command": "verifyText",
+      "target": "id=display",
+      "targets": [
+        ["id=display", "id"],
+        ["css=#display", "css:finder"],
+        ["xpath=//span[@id='display']", "xpath:attributes"],
+        ["xpath=//div[@id='user-message']/span", "xpath:idRelative"],
+        ["xpath=//div/span", "xpath:position"],
+        ["xpath=//span[contains(.,'aa')]", "xpath:innerText"]
+      ],
+      "value": "msg"
+    }]
+  }],
+  "suites": [{
+    "id": "faae1086-32c9-4bc6-8088-0ea66c1dff83",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["828a3541-3909-4c27-ac78-b3d00952b170"]
+  }],
+  "urls": ["https://www.seleniumeasy.com/"],
+  "plugins": []
+}

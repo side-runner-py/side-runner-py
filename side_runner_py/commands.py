@@ -33,6 +33,10 @@ def execute_execute_script(driver, store, test_project, test_suite, test_dict):
         store[test_dict['value']] = result
 
 
+def execute_run_script(driver, store, test_project, test_suite, test_dict):
+    driver.execute_script(test_dict['target'])
+
+
 # By.CLASS_NAME         By.ID                 By.NAME               By.TAG_NAME           By.mro(
 # By.CSS_SELECTOR       By.LINK_TEXT          By.PARTIAL_LINK_TEXT  By.XPATH
 def _get_element_selector_tuple(target_text):
@@ -253,6 +257,7 @@ TEST_HANDLER_MAP = {
     'open': execute_open,
     'setWindowSize': execute_set_window_size,
     'executeScript': execute_execute_script,
+    'runScript': execute_run_script,
     'click': execute_click,
     'clickAt': execute_click_at,
     'doubleClick': execute_double_click,
